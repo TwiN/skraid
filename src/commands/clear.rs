@@ -9,7 +9,8 @@ const MINIMUM_NUMBER_OF_MESSAGES: u64 = 2;
 const MAXIMUM_NUMBER_OF_MESSAGES: u64 = 100;
 
 #[command]
-#[description = "Clear N messages from a channel"]
+#[description = "Clear N messages from the current channel"]
+#[usage = "20"]
 #[aliases(clean, nuke)]
 #[min_args(1)]
 async fn clear(ctx: &Context, msg: &Message, args: Args) -> CommandResult {

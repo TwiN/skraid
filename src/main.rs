@@ -3,6 +3,7 @@ use crate::listeners::handlers::event_handler::Handler;
 use commands::clear::*;
 use commands::global_ban::*;
 use commands::status::*;
+use serenity::client::bridge::gateway::GatewayIntents;
 use serenity::client::Context;
 use serenity::framework::standard::help_commands;
 use serenity::framework::standard::macros::{check, group, help};
@@ -34,7 +35,7 @@ struct Staff;
 struct Maintainer;
 
 #[check]
-#[name = "Maintainer"]
+#[name(Maintainer)]
 async fn maintainer_check(ctx: &Context, msg: &Message, _: &mut Args, _: &CommandOptions) -> Result<(), Reason> {
     let maintainer_id: String;
     {
@@ -51,6 +52,9 @@ async fn maintainer_check(ctx: &Context, msg: &Message, _: &mut Args, _: &Comman
 }
 
 #[help]
+#[strikethrough_commands_tip_in_guild("")]
+#[lacking_permissions(hide)]
+#[lacking_conditions(hide)]
 async fn help(ctx: &Context, msg: &Message, args: Args, help_options: &'static HelpOptions, groups: &[&'static CommandGroup], owners: HashSet<UserId>) -> CommandResult {
     let _ = help_commands::with_embeds(ctx, msg, args, help_options, groups, owners).await;
     Ok(())
@@ -69,8 +73,9 @@ fn create_framework(prefix: String) -> StandardFramework {
 async fn main() {
     let config = load_configuration_map();
     let mut client = Client::builder(config.get(config::KEY_TOKEN).unwrap().to_string())
-        .event_handler(Handler)
         .framework(create_framework(config.get(config::KEY_PREFIX).unwrap().to_string()))
+        .event_handler(Handler)
+        .intents(GatewayIntents::all()) // Required for #[required_permissions(...)] on #[help]
         .await
         .expect("Error creating client");
     {
