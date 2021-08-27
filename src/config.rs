@@ -3,8 +3,9 @@ use std::collections::HashMap;
 use std::env;
 use std::sync::{Arc, RwLock};
 
-pub const KEY_PREFIX: &str = "prefix";
 pub const KEY_TOKEN: &str = "token";
+pub const KEY_PREFIX: &str = "prefix";
+pub const KEY_MAINTAINER_ID: &str = "maintainer";
 
 pub struct Config;
 
@@ -18,5 +19,6 @@ pub fn load_configuration_map() -> HashMap<String, String> {
     let mut map = HashMap::default();
     map.insert(KEY_TOKEN.to_string(), env::var("DISCORD_BOT_TOKEN").expect("token").to_string());
     map.insert(KEY_PREFIX.to_string(), prefix.to_string());
+    map.insert(KEY_MAINTAINER_ID.to_string(), env::var("MAINTAINER_ID").expect("maintainer id").to_string());
     return map;
 }

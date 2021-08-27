@@ -1,6 +1,7 @@
 use crate::config::{load_configuration_map, Config};
 use crate::listeners::handlers::event_handler::Handler;
 use commands::clear::*;
+use commands::global_ban::*;
 use commands::status::*;
 use serenity::client::Context;
 use serenity::framework::standard::help_commands;
@@ -23,32 +24,45 @@ struct General;
 
 #[group]
 #[only_in(guilds)]
-#[required_permissions(MANAGE_MESSAGES, BAN_MEMBERS)]
+#[required_permissions(BAN_MEMBERS)]
 #[commands(clear)]
 struct Staff;
 
 #[group]
 #[checks(Maintainer)]
-#[commands(clear)]
+#[commands(global_ban)]
 struct Maintainer;
 
 #[check]
 #[name = "Maintainer"]
 async fn maintainer_check(ctx: &Context, msg: &Message, _: &mut Args, _: &CommandOptions) -> Result<(), Reason> {
-    if msg.author.id != 7 {
+    let maintainer_id: String;
+    {
+        let reader = ctx.data.read().await;
+        let config = reader.get::<Config>().expect("Expected Config to exist in context data").clone();
+        let cfg = config.read().unwrap();
+        maintainer_id = cfg.get(config::KEY_MAINTAINER_ID).unwrap().to_string();
+    }
+    let maintainer_id_u64 = maintainer_id.parse::<u64>().unwrap();
+    if msg.author.id.0 != maintainer_id_u64 {
         return Err(Reason::Log("Lacked maintainer permission".to_string()));
     }
     Ok(())
 }
 
 #[help]
-async fn help(context: &Context, msg: &Message, args: Args, help_options: &'static HelpOptions, groups: &[&'static CommandGroup], owners: HashSet<UserId>) -> CommandResult {
-    let _ = help_commands::with_embeds(context, msg, args, help_options, groups, owners).await;
+async fn help(ctx: &Context, msg: &Message, args: Args, help_options: &'static HelpOptions, groups: &[&'static CommandGroup], owners: HashSet<UserId>) -> CommandResult {
+    let _ = help_commands::with_embeds(ctx, msg, args, help_options, groups, owners).await;
     Ok(())
 }
 
 fn create_framework(prefix: String) -> StandardFramework {
-    return StandardFramework::new().configure(|c| c.prefix(prefix.as_str()).case_insensitivity(true)).help(&HELP).group(&GENERAL_GROUP).group(&STAFF_GROUP);
+    return StandardFramework::new()
+        .configure(|c| c.prefix(prefix.as_str()).case_insensitivity(true))
+        .help(&HELP)
+        .group(&GENERAL_GROUP)
+        .group(&STAFF_GROUP)
+        .group(&MAINTAINER_GROUP);
 }
 
 #[tokio::main]
