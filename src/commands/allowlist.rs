@@ -105,7 +105,6 @@ async fn get_allowlisted_users(ctx: &Context, msg: &Message) -> CommandResult {
             message.push_str(allowlisted_user.to_string().as_str());
             message.push_str("\n");
         }
-        println!("{}", message);
         msg.reply(ctx, format!("**List of allowlisted users in this guild**:\n```\n{}```", message)).await?;
     }
     return Ok(());
