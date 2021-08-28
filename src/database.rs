@@ -155,7 +155,7 @@ impl Database {
     }
 
     pub fn contains_forbidden_word(&self, message: String) -> Result<bool> {
-        let mut statement = self.connection.prepare("SELECT word FROM forbidden_words WHERE ?1 LIKE '%'+word+'%' LIMIT 1")?;
+        let mut statement = self.connection.prepare("SELECT word FROM forbidden_words WHERE ?1 LIKE '%'||word||'%' LIMIT 1")?;
         let mut rows = statement.query([message])?;
         while let Some(_row) = rows.next()? {
             return Ok(true);
