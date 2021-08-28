@@ -7,6 +7,8 @@ use serenity::{
     framework::standard::{macros::command, Args, CommandResult},
 };
 
+const MAXIMUM_NUMBER_OF_ALLOWLISTED_USERS_PER_GUILD: u64 = 100;
+
 #[command]
 #[description("Add user ID to the guild's list of exception (allowlist). This is only necessary if Skraid banned a user that you believe is legitimate.")]
 #[usage("USER_ID")]
@@ -19,8 +21,16 @@ async fn allowlist(ctx: &Context, msg: &Message, mut args: Args) -> CommandResul
         Err(e) => return Err(CommandError::from(e.to_string())),
     };
     {
+        let guild_id = msg.guild_id.unwrap().0;
         let lock = ctx.data.read().await;
         let db = lock.get::<Database>().unwrap();
+        let number_of_allowlisted_users = match db.count_allowlisted_users_in_guild(guild_id) {
+            Ok(n) => n,
+            Err(e) => return Err(CommandError::from(e.to_string())),
+        };
+        if number_of_allowlisted_users >= MAXIMUM_NUMBER_OF_ALLOWLISTED_USERS_PER_GUILD {
+            return Err(CommandError::from("Reached maximum number of allowlisted users"));
+        }
         match db.insert_in_allowlist(msg.guild_id.unwrap().0, user_id) {
             Ok(_) => (),
             Err(e) => return Err(CommandError::from(e.to_string())),
