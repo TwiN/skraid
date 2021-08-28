@@ -34,7 +34,7 @@ struct General;
 #[group]
 #[only_in(guilds)]
 #[required_permissions(BAN_MEMBERS)]
-#[commands(allowlist, unallowlist, is_allowlisted, clear)]
+#[commands(allowlist, unallowlist, is_allowlisted, get_allowlisted_users, clear)]
 struct Staff;
 
 #[group]

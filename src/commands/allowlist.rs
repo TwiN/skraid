@@ -74,3 +74,29 @@ async fn is_allowlisted(ctx: &Context, msg: &Message, args: Args) -> CommandResu
     msg.reply(ctx, format!("{}", is_allowlisted)).await?;
     return Ok(());
 }
+
+#[command]
+#[description("Retrieves a list of all allowlisted user ids for this guild")]
+async fn get_allowlisted_users(ctx: &Context, msg: &Message) -> CommandResult {
+    let allowlisted_users: Vec<u64>;
+    {
+        let lock = ctx.data.read().await;
+        let db = lock.get::<Database>().unwrap();
+        allowlisted_users = match db.get_allowlisted_users_in_guild(msg.guild_id.unwrap().0) {
+            Ok(users) => users,
+            Err(e) => return Err(CommandError::from(e.to_string())),
+        };
+    }
+    if allowlisted_users.is_empty() {
+        msg.reply(ctx, "There is currently no users in the allowlist for this guild.").await?;
+    } else {
+        let mut message: String = "".to_owned();
+        for allowlisted_user in allowlisted_users {
+            message.push_str(allowlisted_user.to_string().as_str());
+            message.push_str("\n");
+        }
+        println!("{}", message);
+        msg.reply(ctx, format!("**List of allowlisted users in this guild**:\n```\n{}```", message)).await?;
+    }
+    return Ok(());
+}

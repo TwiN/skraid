@@ -50,7 +50,7 @@ impl Database {
         match self.connection.execute(
             "CREATE TABLE IF NOT EXISTS allowlist (
                 id         INTEGER PRIMARY KEY,
-                guild_id   UNSIGNED BIG INT REFERENCES guilds(guild_id),
+                guild_id   UNSIGNED BIG INT NOT NULL, -- Decided to not make this a reference to the guild table for now
                 user_id    UNSIGNED BIG INT NOT NULL,
                 UNIQUE(guild_id, user_id)
             )",
@@ -128,6 +128,16 @@ impl Database {
             count = row.get(0).unwrap();
         }
         return Ok(count);
+    }
+
+    pub fn get_allowlisted_users_in_guild(&self, guild_id: u64) -> Result<Vec<u64>> {
+        let mut statement = self.connection.prepare("SELECT user_id FROM allowlist WHERE guild_id = ?1")?;
+        let mut rows = statement.query([guild_id])?;
+        let mut user_ids: Vec<u64> = Vec::new();
+        while let Some(row) = rows.next()? {
+            user_ids.push(row.get(0).unwrap());
+        }
+        return Ok(user_ids);
     }
 
     pub fn insert_in_forbidden_words(&self, word: String) -> Result<bool> {
