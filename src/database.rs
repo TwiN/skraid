@@ -27,8 +27,9 @@ impl Database {
 
     pub fn create_schema(&self) {
         match self.connection.execute(
-            "CREATE TABLE IF NOT EXISTS banned_users (
+            "CREATE TABLE IF NOT EXISTS blocklist (
                 user_id   UNSIGNED BIG INT PRIMARY KEY,
+                reason    TEXT,
                 timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
             )",
             [],
@@ -38,21 +39,26 @@ impl Database {
         }
     }
 
-    pub fn insert_banned_user(&self, id: u64) -> Result<bool> {
-        return match self.connection.execute("INSERT INTO banned_users (user_id) VALUES (?1)", params![id]) {
+    pub fn insert_in_blocklist(&self, id: u64, reason: String) -> Result<bool> {
+        return match self.connection.execute("INSERT INTO blocklist (user_id, reason) VALUES (?1, ?2)", params![id, reason]) {
             Ok(_) => Ok(true),
             Err(error) => Err(error),
         };
     }
 
-    pub fn is_banned(&self, id: u64) -> Result<bool> {
-        let mut statement = self.connection.prepare("SELECT user_id FROM banned_users WHERE user_id = ? LIMIT 1")?;
+    pub fn remove_from_blocklist(&self, id: u64) -> Result<bool> {
+        return match self.connection.execute("DELETE FROM blocklist WHERE user_id = ?1", params![id]) {
+            Ok(_) => Ok(true),
+            Err(error) => Err(error),
+        };
+    }
+
+    pub fn is_blocklisted(&self, id: u64) -> Result<bool> {
+        let mut statement = self.connection.prepare("SELECT user_id FROM blocklist WHERE user_id = ? LIMIT 1")?;
         let mut rows = statement.query([id])?;
         while let Some(_row) = rows.next()? {
-            println!("is banned");
             return Ok(true);
         }
-        println!("not banned");
         return Ok(false);
     }
 }

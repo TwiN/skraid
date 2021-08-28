@@ -9,46 +9,70 @@ use serenity::{
 };
 
 #[command]
-#[description("Add user ID to global ban list")]
+#[description("Add user ID to the global ban list")]
 #[aliases(gban)]
 #[min_args(1)]
-async fn global_ban(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
-    if msg.is_private() {
-        println!("[{}#{}] {}", msg.author.name, msg.author.discriminator, msg.content.as_str());
-    } else {
-        println!("[{}] {}", ctx.cache.guild(msg.guild_id.unwrap().0).await.unwrap().name, msg.content.as_str());
+async fn blocklist(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
+    log(ctx, msg, msg.content.to_string());
+    let id = match args.single::<String>().unwrap().parse::<u64>() {
+        Ok(n) => n,
+        Err(e) => return Err(CommandError::from(e.to_string())),
+    };
+    let reason = args.rest();
+    {
+        let lock = ctx.data.read().await;
+        let db = lock.get::<Database>().unwrap();
+        match db.insert_in_blocklist(id, reason.to_string()) {
+            Ok(_) => (),
+            Err(e) => return Err(CommandError::from(e.to_string())),
+        };
     }
-    let lock = ctx.data.read().await;
-    let db = lock.get::<Database>().unwrap();
+    msg.react(ctx, Unicode("✅".into())).await?;
+    log(ctx, msg, format!("Successfully added id={} to blacklist for reason={}", id, reason));
+    return Ok(());
+}
+
+#[command]
+#[description("Remove user ID from the global ban list")]
+#[aliases(gunban)]
+#[min_args(1)]
+async fn unblocklist(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
+    log(ctx, msg, msg.content.to_string());
     let id = match args.rest().parse::<u64>() {
         Ok(n) => n,
         Err(e) => return Err(CommandError::from(e.to_string())),
     };
-    match db.insert_banned_user(id) {
-        Ok(_) => (),
-        Err(e) => return Err(CommandError::from(e.to_string())),
-    };
-    msg.react(ctx, Unicode("✅".to_string())).await?;
-    println!("");
+    {
+        let lock = ctx.data.read().await;
+        let db = lock.get::<Database>().unwrap();
+        match db.remove_from_blocklist(id) {
+            Ok(b) => b,
+            Err(e) => return Err(CommandError::from(e.to_string())),
+        };
+    }
+    msg.react(ctx, Unicode("✅".into())).await?;
     return Ok(());
 }
 
 #[command]
 #[description("Check if a user ID is in the global ban list")]
-#[aliases(cban, isbanned, checkban)]
 #[min_args(1)]
-async fn is_global_ban(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
-    println!("[{}] {}", ctx.cache.guild(msg.guild_id.unwrap().0).await.unwrap().name, msg.content.as_str());
-    let lock = ctx.data.read().await;
-    let db = lock.get::<Database>().unwrap();
+async fn is_blocklisted(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
+    log(ctx, msg, msg.content.to_string());
     let id = match args.rest().parse::<u64>() {
         Ok(n) => n,
         Err(e) => return Err(CommandError::from(e.to_string())),
     };
-    match db.is_banned(id) {
-        Ok(b) => msg.reply(ctx, format!("{}", b)).await?,
-        Err(e) => return Err(CommandError::from(e.to_string())),
-    };
-    msg.react(ctx, Unicode("✅".to_string())).await?;
+    let is_banned: bool;
+    {
+        let lock = ctx.data.read().await;
+        let db = lock.get::<Database>().unwrap();
+        is_banned = match db.is_blocklisted(id) {
+            Ok(b) => b,
+            Err(e) => return Err(CommandError::from(e.to_string())),
+        };
+    }
+    msg.reply(ctx, format!("{}", is_banned)).await?;
+    msg.react(ctx, Unicode("✅".into())).await?;
     return Ok(());
 }

@@ -32,12 +32,12 @@ struct General;
 #[group]
 #[only_in(guilds)]
 #[required_permissions(BAN_MEMBERS)]
-#[commands(clear, is_global_ban)]
+#[commands(clear)]
 struct Staff;
 
 #[group]
 #[checks(Maintainer)]
-#[commands(global_ban, is_global_ban)]
+#[commands(blocklist, unblocklist, is_blocklisted)]
 struct Maintainer;
 
 #[check]
