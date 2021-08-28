@@ -1,3 +1,4 @@
+use crate::utilities::logging::log;
 use serenity::client::Context;
 use serenity::model::channel::Message;
 
@@ -7,6 +8,6 @@ pub async fn message(ctx: Context, msg: Message) {
         return;
     }
     if msg.content.contains("://diskord.") || msg.content.contains("://discorcl.") {
-        println!("[{}] userId={} posted suspicious message={}", ctx.cache.guild(msg.guild_id.unwrap().0).await.unwrap().name, msg.author.id.0, msg.content)
+        log(&ctx, &msg, format!("userId={} posted suspicious message={}", msg.author.id.0, msg.content))
     }
 }

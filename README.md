@@ -1,13 +1,22 @@
 # skraid
+Skraid -- a word play on scram, scam and raid -- is a bot whose only purpose is to put an end to the growing amount of
+raids and scams in Discord.
 
 
 ## Usage
 | Environment variable | Description                           | Required | Default |
-|:-------------------- |:------------------------------------- |:--- |:---- |
-| DISCORD_BOT_TOKEN    | Discord bot token                     | yes | `""` |
-| COMMAND_PREFIX       | String prepending all bot commands.   | no | `s!` |
+|:-------------------- |:------------------------------------- |:-------- |:------- |
+| DISCORD_BOT_TOKEN    | Discord bot token                     | yes      | `""`    |
+| MAINTAINER_ID        | User ID of the maintainer of the bot  | yes      | `""`    |
+| COMMAND_PREFIX       | String prepending all bot commands.   | no       | `s!`    |
+| DATABASE_PATH        | Path to the SQLite database file      | no       | `""`    |
 
 
 ## Getting started
 To invite the bot in the server: `https://discord.com/oauth2/authorize?client_id=<YOUR_BOT_CLIENT_ID>&scope=bot&permissions=11332`
 
+
+## Features
+- Bans new users if they're part of the global ban list. Does not affect users that were already in the server.
+- Detect messages containing known phishing/scam links, ban them and add them to the global ban list.
+- Has some utility functions to manage raids

@@ -48,17 +48,18 @@ async fn maintainer_check(ctx: &Context, msg: &Message, _: &mut Args, _: &Comman
         let reader = ctx.data.read().await;
         let config = reader.get::<Config>().expect("Expected Config to exist in context data").clone();
         let cfg = config.read().unwrap();
-        maintainer_id = cfg.get(config::KEY_MAINTAINER_ID).unwrap().to_string();
+        maintainer_id = cfg.get(config::KEY_MAINTAINER_ID).unwrap().into();
     }
     let maintainer_id_u64 = maintainer_id.parse::<u64>().unwrap();
     if msg.author.id.0 != maintainer_id_u64 {
-        return Err(Reason::Log("Lacked maintainer permission".to_string()));
+        return Err(Reason::Log("Lacked maintainer permission".into()));
     }
     Ok(())
 }
 
 #[help]
 #[strikethrough_commands_tip_in_guild("")]
+#[strikethrough_commands_tip_in_dm("")]
 #[lacking_permissions(hide)]
 #[lacking_conditions(hide)]
 async fn help(ctx: &Context, msg: &Message, args: Args, help_options: &'static HelpOptions, groups: &[&'static CommandGroup], owners: HashSet<UserId>) -> CommandResult {
