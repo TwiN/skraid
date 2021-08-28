@@ -59,7 +59,19 @@ impl Database {
             Ok(_) => (),
             Err(error) => panic!("{}", error),
         }
-        println!("Successfully initiated schema")
+        match self.connection.execute(
+            "CREATE TABLE IF NOT EXISTS forbidden_words (
+                id    INTEGER PRIMARY KEY,
+                word  TEXT NOT NULL UNIQUE
+            )",
+            [],
+        ) {
+            Ok(_) => (),
+            Err(error) => panic!("{}", error),
+        }
+        println!("Successfully initiated schema");
+        let _ = self.insert_in_forbidden_words("://diskord.".to_string());
+        let _ = self.insert_in_forbidden_words("://discorcl.".to_string());
     }
 
     pub fn insert_in_blocklist(&self, id: u64, reason: String) -> Result<bool> {
@@ -106,6 +118,49 @@ impl Database {
             return Ok(true);
         }
         return Ok(false);
+    }
+
+    pub fn count_allowlisted_users_in_guild(&self, guild_id: u64) -> Result<u64> {
+        let mut statement = self.connection.prepare("SELECT COUNT(1) FROM allowlist WHERE guild_id = ?1")?;
+        let mut rows = statement.query([guild_id])?;
+        let mut count: u64 = 0;
+        while let Some(row) = rows.next()? {
+            count = row.get(0).unwrap();
+        }
+        return Ok(count);
+    }
+
+    pub fn insert_in_forbidden_words(&self, word: String) -> Result<bool> {
+        return match self.connection.execute("INSERT INTO forbidden_words (word) VALUES (?1)", params![word]) {
+            Ok(_) => Ok(true),
+            Err(error) => Err(error),
+        };
+    }
+
+    pub fn remove_from_forbidden_words(&self, word: String) -> Result<bool> {
+        return match self.connection.execute("DELETE FROM forbidden_words WHERE word = ?1", params![word]) {
+            Ok(_) => Ok(true),
+            Err(error) => Err(error),
+        };
+    }
+
+    pub fn contains_forbidden_word(&self, message: String) -> Result<bool> {
+        let mut statement = self.connection.prepare("SELECT word FROM forbidden_words WHERE ?1 LIKE '%'+word+'%' LIMIT 1")?;
+        let mut rows = statement.query([message])?;
+        while let Some(_row) = rows.next()? {
+            return Ok(true);
+        }
+        return Ok(false);
+    }
+
+    pub fn get_forbidden_words(&self) -> Result<Vec<String>> {
+        let mut statement = self.connection.prepare("SELECT word FROM forbidden_words")?;
+        let mut rows = statement.query([])?;
+        let mut forbidden_words: Vec<String> = Vec::new();
+        while let Some(row) = rows.next()? {
+            forbidden_words.push(row.get(0).unwrap());
+        }
+        return Ok(forbidden_words);
     }
 }
 

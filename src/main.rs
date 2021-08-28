@@ -5,6 +5,7 @@ use crate::utilities::logging::log;
 use commands::allowlist::*;
 use commands::blocklist::*;
 use commands::clear::*;
+use commands::forbidden_words::*;
 use commands::status::*;
 use serenity::client::bridge::gateway::GatewayIntents;
 use serenity::client::Context;
@@ -38,7 +39,7 @@ struct Staff;
 
 #[group]
 #[checks(Maintainer)]
-#[commands(blocklist, unblocklist, is_blocklisted)]
+#[commands(blocklist, unblocklist, is_blocklisted, forbid_word, unforbid_word, contains_forbidden_word, get_forbidden_words)]
 struct Maintainer;
 
 #[check]
