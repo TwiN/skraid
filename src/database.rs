@@ -34,9 +34,32 @@ impl Database {
             )",
             [],
         ) {
-            Ok(_) => println!("Successfully initiated schema"),
+            Ok(_) => (),
             Err(error) => panic!("{}", error),
         }
+        match self.connection.execute(
+            "CREATE TABLE IF NOT EXISTS guilds (
+                guild_id   UNSIGNED BIG INT PRIMARY KEY,
+                enabled    INTEGER DEFAULT FALSE
+            )",
+            [],
+        ) {
+            Ok(_) => (),
+            Err(error) => panic!("{}", error),
+        }
+        match self.connection.execute(
+            "CREATE TABLE IF NOT EXISTS allowlist (
+                id         INTEGER PRIMARY KEY,
+                guild_id   UNSIGNED BIG INT REFERENCES guilds(guild_id),
+                user_id    UNSIGNED BIG INT NOT NULL,
+                UNIQUE(guild_id, user_id)
+            )",
+            [],
+        ) {
+            Ok(_) => (),
+            Err(error) => panic!("{}", error),
+        }
+        println!("Successfully initiated schema")
     }
 
     pub fn insert_in_blocklist(&self, id: u64, reason: String) -> Result<bool> {
@@ -56,6 +79,29 @@ impl Database {
     pub fn is_blocklisted(&self, id: u64) -> Result<bool> {
         let mut statement = self.connection.prepare("SELECT user_id FROM blocklist WHERE user_id = ? LIMIT 1")?;
         let mut rows = statement.query([id])?;
+        while let Some(_row) = rows.next()? {
+            return Ok(true);
+        }
+        return Ok(false);
+    }
+
+    pub fn insert_in_allowlist(&self, guild_id: u64, user_id: u64) -> Result<bool> {
+        return match self.connection.execute("INSERT INTO allowlist (guild_id, user_id) VALUES (?1, ?2)", params![guild_id, user_id]) {
+            Ok(_) => Ok(true),
+            Err(error) => Err(error),
+        };
+    }
+
+    pub fn remove_from_allowlist(&self, guild_id: u64, user_id: u64) -> Result<bool> {
+        return match self.connection.execute("DELETE FROM allowlist WHERE guild_id = ?1 AND user_id = ?2", params![guild_id, user_id]) {
+            Ok(_) => Ok(true),
+            Err(error) => Err(error),
+        };
+    }
+
+    pub fn is_allowlisted(&self, guild_id: u64, user_id: u64) -> Result<bool> {
+        let mut statement = self.connection.prepare("SELECT user_id FROM allowlist WHERE guild_id = ?1 AND user_id = ?2 LIMIT 1")?;
+        let mut rows = statement.query([guild_id, user_id])?;
         while let Some(_row) = rows.next()? {
             return Ok(true);
         }

@@ -2,6 +2,7 @@ use crate::config::{load_configuration_map, Config};
 use crate::database::Database;
 use crate::listeners::handlers::event_handler::Handler;
 use crate::utilities::logging::log;
+use commands::allowlist::*;
 use commands::blocklist::*;
 use commands::clear::*;
 use commands::status::*;
@@ -32,7 +33,7 @@ struct General;
 #[group]
 #[only_in(guilds)]
 #[required_permissions(BAN_MEMBERS)]
-#[commands(clear)]
+#[commands(allowlist, unallowlist, is_allowlisted, clear)]
 struct Staff;
 
 #[group]

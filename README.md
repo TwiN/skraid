@@ -18,5 +18,12 @@ To invite the bot in the server: `https://discord.com/oauth2/authorize?client_id
 
 ## Features
 - Bans new users if they're part of the global ban list. Does not affect users that were already in the server.
-- Detect messages containing known phishing/scam links, ban them and add them to the global ban list.
+- Supports per-server list of "exceptions" (allowlist), if a legitimate user is in the blocklist (global ban list)
+- Detect messages containing known phishing/scam links, ban them and add them to the global ban list. **(TODO)**
+- Command to enable/disable
 - Has some utility functions to manage raids
+
+
+## Glossary
+- **blocklist**: A global ban list maintained by the bot's maintainer.
+- **allowlist**: A per-guild list of user ids. Used only in case Skraid has banned a user whom you believe is a legitimate user. 
