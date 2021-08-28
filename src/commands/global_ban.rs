@@ -9,6 +9,8 @@ use serenity::{
 
 #[command]
 #[description("Add user ID to the global ban list")]
+#[usage("USER_ID [REASON]")]
+#[example("000000000000000000 Scam")]
 #[aliases(gban)]
 #[min_args(1)]
 async fn blocklist(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
@@ -31,6 +33,8 @@ async fn blocklist(ctx: &Context, msg: &Message, mut args: Args) -> CommandResul
 
 #[command]
 #[description("Remove user ID from the global ban list")]
+#[usage("USER_ID")]
+#[example("000000000000000000")]
 #[aliases(gunban)]
 #[min_args(1)]
 async fn unblocklist(ctx: &Context, _: &Message, args: Args) -> CommandResult {
@@ -51,6 +55,8 @@ async fn unblocklist(ctx: &Context, _: &Message, args: Args) -> CommandResult {
 
 #[command]
 #[description("Check if a user ID is in the global ban list")]
+#[usage("USER_ID")]
+#[example("000000000000000000")]
 #[min_args(1)]
 async fn is_blocklisted(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
     let id = match args.rest().parse::<u64>() {

@@ -84,7 +84,7 @@ async fn after_hook(ctx: &Context, msg: &Message, cmd_name: &str, error: Result<
     }
 }
 
-fn create_framework(prefix: String) -> StandardFramework {
+async fn create_framework(prefix: String) -> StandardFramework {
     return StandardFramework::new()
         .configure(|c| c.prefix(prefix.as_str()).case_insensitivity(true))
         .before(before_hook)
@@ -92,14 +92,20 @@ fn create_framework(prefix: String) -> StandardFramework {
         .help(&HELP)
         .group(&GENERAL_GROUP)
         .group(&STAFF_GROUP)
-        .group(&MAINTAINER_GROUP);
+        .group(&MAINTAINER_GROUP)
+        // rate limit after 10 uses over 3 seconds
+        .bucket("general", |b| b.time_span(3).limit(10))
+        .await
+        // rate limit after 20 uses over 5 seconds
+        .bucket("staff", |b| b.time_span(5).limit(20))
+        .await;
 }
 
 #[tokio::main]
 async fn main() {
     let config = load_configuration_map();
     let mut client = Client::builder(config.get(config::KEY_TOKEN).unwrap().to_string())
-        .framework(create_framework(config.get(config::KEY_PREFIX).unwrap().to_string()))
+        .framework(create_framework(config.get(config::KEY_PREFIX).unwrap().to_string()).await)
         .event_handler(Handler)
         .intents(GatewayIntents::all()) // Required for #[required_permissions(...)] on #[help]
         .await

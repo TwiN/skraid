@@ -5,6 +5,8 @@ use serenity::{
 };
 
 #[command]
+#[description("Check the status of the bot")]
+#[bucket(general)]
 async fn status(ctx: &Context, msg: &Message) -> CommandResult {
     msg.reply(ctx, "I'm fine.").await?;
     Ok(())
