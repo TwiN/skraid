@@ -1,3 +1,4 @@
+use crate::utilities::logging::log;
 use serenity::model::channel::Message;
 use serenity::model::channel::ReactionType::Unicode;
 use serenity::{
@@ -26,6 +27,6 @@ async fn clear(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
     msg.react(ctx, Unicode("✅".to_string())).await?;
     let message_ids = msg.channel_id.messages(ctx, |retriever| retriever.before(msg.id).limit(number_of_messages)).await?;
     msg.channel_id.delete_messages(ctx, message_ids).await?;
-    println!("[{}] {}", msg.guild_id.unwrap(), msg.content.as_str());
+    log(ctx, msg, msg.content.to_string());
     return Ok(());
 }

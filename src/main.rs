@@ -1,6 +1,7 @@
 use crate::config::{load_configuration_map, Config};
 use crate::database::Database;
 use crate::listeners::handlers::event_handler::Handler;
+use crate::utilities::logging::log;
 use commands::clear::*;
 use commands::global_ban::*;
 use commands::status::*;
@@ -22,6 +23,7 @@ mod commands;
 mod config;
 mod database;
 mod listeners;
+mod utilities;
 
 #[group]
 #[commands(status)]
@@ -67,9 +69,9 @@ async fn help(ctx: &Context, msg: &Message, args: Args, help_options: &'static H
 #[hook]
 async fn after_hook(ctx: &Context, msg: &Message, cmd_name: &str, error: Result<(), CommandError>) {
     if let Err(why) = error {
-        let _ = msg.react(ctx, Unicode("❌".to_string())).await;
+        log(ctx, msg, format!("Error in {}: {}", cmd_name, why));
+        let _ = msg.react(ctx, Unicode("❌".into())).await;
         let _ = msg.reply(ctx, format!("Error: `{}`", why)).await;
-        println!("[{}] Error in {}: {:?}", ctx.cache.guild(msg.guild_id.unwrap().0).await.unwrap().name, cmd_name, why);
     }
 }
 

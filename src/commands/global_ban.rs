@@ -1,4 +1,5 @@
 use crate::database::Database;
+use crate::utilities::logging::log;
 use serenity::framework::standard::CommandError;
 use serenity::model::channel::Message;
 use serenity::model::channel::ReactionType::Unicode;
