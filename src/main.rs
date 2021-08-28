@@ -1,15 +1,18 @@
 use crate::config::{load_configuration_map, Config};
+use crate::database::Database;
 use crate::listeners::handlers::event_handler::Handler;
 use commands::clear::*;
 use commands::global_ban::*;
 use commands::status::*;
 use serenity::client::bridge::gateway::GatewayIntents;
 use serenity::client::Context;
-use serenity::framework::standard::help_commands;
+use serenity::framework::standard::macros::hook;
 use serenity::framework::standard::macros::{check, group, help};
+use serenity::framework::standard::{help_commands, CommandError};
 use serenity::framework::standard::{Args, CommandGroup, CommandOptions, CommandResult, HelpOptions, Reason};
 use serenity::framework::StandardFramework;
 use serenity::model::channel::Message;
+use serenity::model::channel::ReactionType::Unicode;
 use serenity::model::id::UserId;
 use serenity::Client;
 use std::collections::HashSet;
@@ -17,6 +20,7 @@ use std::sync::{Arc, RwLock};
 
 mod commands;
 mod config;
+mod database;
 mod listeners;
 
 #[group]
@@ -26,12 +30,12 @@ struct General;
 #[group]
 #[only_in(guilds)]
 #[required_permissions(BAN_MEMBERS)]
-#[commands(clear)]
+#[commands(clear, is_global_ban)]
 struct Staff;
 
 #[group]
 #[checks(Maintainer)]
-#[commands(global_ban)]
+#[commands(global_ban, is_global_ban)]
 struct Maintainer;
 
 #[check]
@@ -60,9 +64,19 @@ async fn help(ctx: &Context, msg: &Message, args: Args, help_options: &'static H
     Ok(())
 }
 
+#[hook]
+async fn after_hook(ctx: &Context, msg: &Message, cmd_name: &str, error: Result<(), CommandError>) {
+    if let Err(why) = error {
+        let _ = msg.react(ctx, Unicode("❌".to_string())).await;
+        let _ = msg.reply(ctx, format!("Error: `{}`", why)).await;
+        println!("[{}] Error in {}: {:?}", ctx.cache.guild(msg.guild_id.unwrap().0).await.unwrap().name, cmd_name, why);
+    }
+}
+
 fn create_framework(prefix: String) -> StandardFramework {
     return StandardFramework::new()
         .configure(|c| c.prefix(prefix.as_str()).case_insensitivity(true))
+        .after(after_hook)
         .help(&HELP)
         .group(&GENERAL_GROUP)
         .group(&STAFF_GROUP)
@@ -78,9 +92,11 @@ async fn main() {
         .intents(GatewayIntents::all()) // Required for #[required_permissions(...)] on #[help]
         .await
         .expect("Error creating client");
+    let database_path = config.get(config::KEY_DATABASE_PATH).unwrap().to_string();
     {
         let mut data = client.data.write().await;
         data.insert::<Config>(Arc::new(RwLock::new(config)));
+        data.insert::<Database>(Database::new(database_path));
     }
     if let Err(why) = client.start().await {
         eprintln!("An error occurred while running the client: {:?}", why);
