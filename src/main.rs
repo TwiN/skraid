@@ -68,17 +68,26 @@ async fn help(ctx: &Context, msg: &Message, args: Args, help_options: &'static H
 }
 
 #[hook]
+async fn before_hook(ctx: &Context, msg: &Message, _: &str) -> bool {
+    log(ctx, msg, msg.content.to_string());
+    return true;
+}
+
+#[hook]
 async fn after_hook(ctx: &Context, msg: &Message, cmd_name: &str, error: Result<(), CommandError>) {
     if let Err(why) = error {
         log(ctx, msg, format!("Error in {}: {}", cmd_name, why));
         let _ = msg.react(ctx, Unicode("❌".into())).await;
         let _ = msg.reply(ctx, format!("Error: `{}`", why)).await;
+    } else {
+        let _ = msg.react(ctx, Unicode("✅".into())).await;
     }
 }
 
 fn create_framework(prefix: String) -> StandardFramework {
     return StandardFramework::new()
         .configure(|c| c.prefix(prefix.as_str()).case_insensitivity(true))
+        .before(before_hook)
         .after(after_hook)
         .help(&HELP)
         .group(&GENERAL_GROUP)

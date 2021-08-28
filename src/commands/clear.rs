@@ -1,6 +1,4 @@
-use crate::utilities::logging::log;
 use serenity::model::channel::Message;
-use serenity::model::channel::ReactionType::Unicode;
 use serenity::{
     client::Context,
     framework::standard::{macros::command, Args, CommandError, CommandResult},
@@ -20,13 +18,9 @@ async fn clear(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
         Err(e) => return Err(CommandError::from(e.to_string())),
     };
     if number_of_messages < MINIMUM_NUMBER_OF_MESSAGES || number_of_messages > MAXIMUM_NUMBER_OF_MESSAGES {
-        msg.react(ctx, Unicode("❌".to_string())).await?;
-        msg.reply(ctx, format!("Number of messages must be between {} and {} inclusively.", MINIMUM_NUMBER_OF_MESSAGES, MAXIMUM_NUMBER_OF_MESSAGES)).await?;
-        return Ok(());
+        return Err(CommandError::from(format!("Number of messages must be between {} and {} inclusively.", MINIMUM_NUMBER_OF_MESSAGES, MAXIMUM_NUMBER_OF_MESSAGES)));
     }
-    msg.react(ctx, Unicode("✅".to_string())).await?;
     let message_ids = msg.channel_id.messages(ctx, |retriever| retriever.before(msg.id).limit(number_of_messages)).await?;
     msg.channel_id.delete_messages(ctx, message_ids).await?;
-    log(ctx, msg, msg.content.to_string());
     return Ok(());
 }
