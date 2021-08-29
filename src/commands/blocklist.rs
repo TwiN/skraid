@@ -20,8 +20,9 @@ async fn blocklist(ctx: &Context, msg: &Message, mut args: Args) -> CommandResul
     };
     let reason = args.rest();
     {
-        let lock = ctx.data.read().await;
-        let db = lock.get::<Database>().unwrap();
+        let data = ctx.data.read().await;
+        let mutex = data.get::<Database>().unwrap();
+        let db = mutex.lock().unwrap();
         match db.insert_in_blocklist(id, reason.to_string()) {
             Ok(_) => (),
             Err(e) => return Err(CommandError::from(e.to_string())),
@@ -43,8 +44,9 @@ async fn unblocklist(ctx: &Context, _: &Message, args: Args) -> CommandResult {
         Err(e) => return Err(CommandError::from(e.to_string())),
     };
     {
-        let lock = ctx.data.read().await;
-        let db = lock.get::<Database>().unwrap();
+        let data = ctx.data.read().await;
+        let mutex = data.get::<Database>().unwrap();
+        let db = mutex.lock().unwrap();
         match db.remove_from_blocklist(id) {
             Ok(b) => b,
             Err(e) => return Err(CommandError::from(e.to_string())),
@@ -65,8 +67,9 @@ async fn is_blocklisted(ctx: &Context, msg: &Message, args: Args) -> CommandResu
     };
     let is_banned: bool;
     {
-        let lock = ctx.data.read().await;
-        let db = lock.get::<Database>().unwrap();
+        let data = ctx.data.read().await;
+        let mutex = data.get::<Database>().unwrap();
+        let db = mutex.lock().unwrap();
         is_banned = match db.is_blocklisted(id) {
             Ok(b) => b,
             Err(e) => return Err(CommandError::from(e.to_string())),

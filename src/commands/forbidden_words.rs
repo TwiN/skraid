@@ -16,8 +16,9 @@ use serenity::{
 async fn forbid_word(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
     let word = args.rest();
     {
-        let lock = ctx.data.read().await;
-        let db = lock.get::<Database>().unwrap();
+        let data = ctx.data.read().await;
+        let mutex = data.get::<Database>().unwrap();
+        let db = mutex.lock().unwrap();
         match db.insert_in_forbidden_words(word.to_string()) {
             Ok(_) => (),
             Err(e) => return Err(CommandError::from(e.to_string())),
@@ -36,8 +37,9 @@ async fn forbid_word(ctx: &Context, msg: &Message, args: Args) -> CommandResult 
 async fn unforbid_word(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
     let word = args.rest();
     {
-        let lock = ctx.data.read().await;
-        let db = lock.get::<Database>().unwrap();
+        let data = ctx.data.read().await;
+        let mutex = data.get::<Database>().unwrap();
+        let db = mutex.lock().unwrap();
         match db.remove_from_forbidden_words(word.to_string()) {
             Ok(b) => b,
             Err(e) => return Err(CommandError::from(e.to_string())),
@@ -55,8 +57,9 @@ async fn unforbid_word(ctx: &Context, msg: &Message, args: Args) -> CommandResul
 async fn contains_forbidden_word(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
     let contains_forbidden_word: bool;
     {
-        let lock = ctx.data.read().await;
-        let db = lock.get::<Database>().unwrap();
+        let data = ctx.data.read().await;
+        let mutex = data.get::<Database>().unwrap();
+        let db = mutex.lock().unwrap();
         contains_forbidden_word = match db.contains_forbidden_word(args.rest().to_string()) {
             Ok(b) => b,
             Err(e) => return Err(CommandError::from(e.to_string())),
@@ -71,8 +74,9 @@ async fn contains_forbidden_word(ctx: &Context, msg: &Message, args: Args) -> Co
 async fn get_forbidden_words(ctx: &Context, msg: &Message) -> CommandResult {
     let forbidden_words: Vec<String>;
     {
-        let lock = ctx.data.read().await;
-        let db = lock.get::<Database>().unwrap();
+        let data = ctx.data.read().await;
+        let mutex = data.get::<Database>().unwrap();
+        let db = mutex.lock().unwrap();
         forbidden_words = match db.get_forbidden_words() {
             Ok(b) => b,
             Err(e) => return Err(CommandError::from(e.to_string())),

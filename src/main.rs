@@ -19,7 +19,7 @@ use serenity::model::channel::ReactionType::Unicode;
 use serenity::model::id::UserId;
 use serenity::Client;
 use std::collections::HashSet;
-use std::sync::{Arc, RwLock};
+use std::sync::{Arc, Mutex, RwLock};
 
 mod commands;
 mod config;
@@ -116,7 +116,7 @@ async fn main() {
     {
         let mut data = client.data.write().await;
         data.insert::<Config>(Arc::new(RwLock::new(config)));
-        data.insert::<Database>(Database::new(database_path));
+        data.insert::<Database>(Arc::new(Mutex::new(Database::new(database_path))));
     }
     if let Err(why) = client.start().await {
         eprintln!("An error occurred while running the client: {:?}", why);

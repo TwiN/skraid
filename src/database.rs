@@ -1,12 +1,13 @@
 use rusqlite::{params, Connection, Result};
 use serenity::prelude::TypeMapKey;
+use std::sync::{Arc, Mutex};
 
 pub struct Database {
     connection: Connection,
 }
 
 impl TypeMapKey for Database {
-    type Value = Database;
+    type Value = Arc<Mutex<Database>>;
 }
 
 impl Database {

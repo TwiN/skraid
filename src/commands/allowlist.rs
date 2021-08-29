@@ -22,8 +22,9 @@ async fn allowlist(ctx: &Context, msg: &Message, mut args: Args) -> CommandResul
     };
     {
         let guild_id = msg.guild_id.unwrap().0;
-        let lock = ctx.data.read().await;
-        let db = lock.get::<Database>().unwrap();
+        let data = ctx.data.read().await;
+        let mutex = data.get::<Database>().unwrap();
+        let db = mutex.lock().unwrap();
         let number_of_allowlisted_users = match db.count_allowlisted_users_in_guild(guild_id) {
             Ok(n) => n,
             Err(e) => return Err(CommandError::from(e.to_string())),
@@ -52,8 +53,9 @@ async fn unallowlist(ctx: &Context, msg: &Message, args: Args) -> CommandResult 
         Err(e) => return Err(CommandError::from(e.to_string())),
     };
     {
-        let lock = ctx.data.read().await;
-        let db = lock.get::<Database>().unwrap();
+        let data = ctx.data.read().await;
+        let mutex = data.get::<Database>().unwrap();
+        let db = mutex.lock().unwrap();
         match db.remove_from_allowlist(msg.guild_id.unwrap().0, user_id) {
             Ok(b) => b,
             Err(e) => return Err(CommandError::from(e.to_string())),
@@ -74,8 +76,9 @@ async fn is_allowlisted(ctx: &Context, msg: &Message, args: Args) -> CommandResu
     };
     let is_allowlisted: bool;
     {
-        let lock = ctx.data.read().await;
-        let db = lock.get::<Database>().unwrap();
+        let data = ctx.data.read().await;
+        let mutex = data.get::<Database>().unwrap();
+        let db = mutex.lock().unwrap();
         is_allowlisted = match db.is_allowlisted(msg.guild_id.unwrap().0, user_id) {
             Ok(b) => b,
             Err(e) => return Err(CommandError::from(e.to_string())),
@@ -90,8 +93,9 @@ async fn is_allowlisted(ctx: &Context, msg: &Message, args: Args) -> CommandResu
 async fn get_allowlisted_users(ctx: &Context, msg: &Message) -> CommandResult {
     let allowlisted_users: Vec<u64>;
     {
-        let lock = ctx.data.read().await;
-        let db = lock.get::<Database>().unwrap();
+        let data = ctx.data.read().await;
+        let mutex = data.get::<Database>().unwrap();
+        let db = mutex.lock().unwrap();
         allowlisted_users = match db.get_allowlisted_users_in_guild(msg.guild_id.unwrap().0) {
             Ok(users) => users,
             Err(e) => return Err(CommandError::from(e.to_string())),
