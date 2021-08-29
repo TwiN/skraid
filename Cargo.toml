@@ -8,7 +8,7 @@ license = "MIT"
 serenity = "0.10"
 
 [dependencies.rusqlite]
-rusqlite = "0.25"
+version = "0.25"
 features = ["bundled"]
 
 [dependencies.tokio]
