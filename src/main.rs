@@ -109,7 +109,16 @@ async fn main() {
     let mut client = Client::builder(config.get(config::KEY_TOKEN).unwrap().to_string())
         .framework(create_framework(config.get(config::KEY_PREFIX).unwrap().to_string()).await)
         .event_handler(Handler)
-        .intents(GatewayIntents::all()) // Required for #[required_permissions(...)] on #[help]
+        .intents(
+            GatewayIntents::GUILDS
+                | GatewayIntents::GUILD_MEMBERS
+                | GatewayIntents::GUILD_BANS
+                | GatewayIntents::GUILD_PRESENCES
+                | GatewayIntents::GUILD_MESSAGES
+                | GatewayIntents::GUILD_MESSAGE_REACTIONS
+                | GatewayIntents::DIRECT_MESSAGES
+                | GatewayIntents::DIRECT_MESSAGE_REACTIONS,
+        ) // Required for #[required_permissions(...)] on #[help]
         .await
         .expect("Error creating client");
     let database_path = config.get(config::KEY_DATABASE_PATH).unwrap().to_string();
