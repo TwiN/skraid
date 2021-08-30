@@ -9,6 +9,7 @@ use commands::forbidden_words::*;
 use commands::status::*;
 use serenity::client::bridge::gateway::GatewayIntents;
 use serenity::client::Context;
+use serenity::framework::standard::buckets::LimitedFor;
 use serenity::framework::standard::macros::hook;
 use serenity::framework::standard::macros::{check, group, help};
 use serenity::framework::standard::DispatchError::{NotEnoughArguments, Ratelimited, TooManyArguments};
@@ -119,11 +120,14 @@ async fn create_framework(prefix: String) -> StandardFramework {
         .group(&GENERAL_GROUP)
         .group(&STAFF_GROUP)
         .group(&MAINTAINER_GROUP)
-        // rate limit after 10 uses over 3 seconds
-        .bucket("general", |b| b.time_span(3).limit(10))
+        // rate limit after 1 use over 3 seconds
+        .bucket("general", |b| b.limit_for(LimitedFor::User).time_span(3).limit(1))
         .await
-        // rate limit after 20 uses over 5 seconds
-        .bucket("staff", |b| b.time_span(5).limit(20))
+        // rate limit after 3 uses over 5 seconds
+        .bucket("staff", |b| b.limit_for(LimitedFor::Guild).time_span(5).limit(3))
+        .await
+        // rate limit after 5 uses over 10 seconds
+        .bucket("suggestion", |b| b.limit_for(LimitedFor::Guild).time_span(10).limit(5))
         .await;
 }
 
