@@ -1,3 +1,4 @@
+use crate::config::{Config, KEY_MAINTAINER_ID};
 use crate::database::Database;
 use crate::utilities::logging::log;
 use serenity::framework::standard::CommandError;
@@ -83,5 +84,28 @@ async fn get_forbidden_words(ctx: &Context, msg: &Message) -> CommandResult {
         };
     }
     msg.reply(ctx, format!("```{}```", forbidden_words.join("\n"))).await?;
+    return Ok(());
+}
+
+#[command]
+#[description("Suggest a word to add to the list of global forbidden words to the maintainer.")]
+#[usage("WORD")]
+#[example("://steamcommrnunity.")]
+#[min_args(1)]
+#[bucket(suggestion)]
+async fn suggest_forbidden_word(ctx: &Context, msg: &Message) -> CommandResult {
+    let maintainer_user_id_as_string: String;
+    {
+        let reader = ctx.data.read().await;
+        let config = reader.get::<Config>().expect("Expected Config to exist in context data").clone();
+        let cfg = config.read().unwrap();
+        maintainer_user_id_as_string = cfg.get(KEY_MAINTAINER_ID).unwrap().clone();
+    }
+    let maintainer_user_id = match maintainer_user_id_as_string.parse::<u64>() {
+        Ok(n) => n,
+        Err(e) => return Err(CommandError::from(e.to_string())),
+    };
+    let user = ctx.http.get_user(maintainer_user_id).await.unwrap();
+    let _ = user.direct_message(&ctx, |m| m.content(format!("{} from {}: ```{}```", msg.author.tag(), msg.guild_id.unwrap().0, msg.content))).await;
     return Ok(());
 }

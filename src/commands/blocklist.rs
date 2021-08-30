@@ -1,3 +1,4 @@
+use crate::config::{Config, KEY_MAINTAINER_ID};
 use crate::database::Database;
 use crate::utilities::logging::log;
 use serenity::framework::standard::CommandError;
@@ -76,5 +77,28 @@ async fn is_blocklisted(ctx: &Context, msg: &Message, args: Args) -> CommandResu
         };
     }
     msg.reply(ctx, format!("{}", is_banned)).await?;
+    return Ok(());
+}
+
+#[command]
+#[description("Suggest the addition of a user ID to the global blocklist to the maintainer.")]
+#[usage("USER_ID REASON")]
+#[example("000000000000000000 Scammer")]
+#[min_args(2)]
+#[bucket(suggestion)]
+async fn suggest_blocklist(ctx: &Context, msg: &Message) -> CommandResult {
+    let maintainer_user_id_as_string: String;
+    {
+        let reader = ctx.data.read().await;
+        let config = reader.get::<Config>().expect("Expected Config to exist in context data").clone();
+        let cfg = config.read().unwrap();
+        maintainer_user_id_as_string = cfg.get(KEY_MAINTAINER_ID).unwrap().clone();
+    }
+    let maintainer_user_id = match maintainer_user_id_as_string.parse::<u64>() {
+        Ok(n) => n,
+        Err(e) => return Err(CommandError::from(e.to_string())),
+    };
+    let user = ctx.http.get_user(maintainer_user_id).await.unwrap();
+    let _ = user.direct_message(&ctx, |m| m.content(format!("{} from {}: ```{}```", msg.author.tag(), msg.guild_id.unwrap().0, msg.content))).await;
     return Ok(());
 }

@@ -36,8 +36,20 @@ struct General;
 #[group]
 #[only_in(guilds)]
 #[required_permissions(BAN_MEMBERS)]
-#[commands(allowlist, unallowlist, is_allowlisted, get_allowlisted_users, clear)]
-struct Staff;
+#[commands(clear)]
+struct Utilities;
+
+#[group]
+#[only_in(guilds)]
+#[required_permissions(BAN_MEMBERS)]
+#[commands(suggest_forbidden_word, suggest_blocklist)]
+struct Suggestion;
+
+#[group]
+#[only_in(guilds)]
+#[required_permissions(BAN_MEMBERS)]
+#[commands(allowlist, unallowlist, is_allowlisted, get_allowlisted_users)]
+struct Allowlist;
 
 #[group]
 #[checks(Maintainer)]
@@ -62,6 +74,7 @@ async fn maintainer_check(ctx: &Context, msg: &Message, _: &mut Args, _: &Comman
 }
 
 #[help]
+#[individual_command_tip("To get help with an individual command, pass its name as an argument to this command.")]
 #[strikethrough_commands_tip_in_guild("")]
 #[strikethrough_commands_tip_in_dm("")]
 #[lacking_permissions(hide)]
@@ -118,7 +131,9 @@ async fn create_framework(prefix: String) -> StandardFramework {
         .after(after_hook)
         .help(&HELP)
         .group(&GENERAL_GROUP)
-        .group(&STAFF_GROUP)
+        .group(&UTILITIES_GROUP)
+        .group(&ALLOWLIST_GROUP)
+        .group(&SUGGESTION_GROUP)
         .group(&MAINTAINER_GROUP)
         // rate limit after 1 use over 3 seconds
         .bucket("general", |b| b.limit_for(LimitedFor::User).time_span(3).limit(1))
