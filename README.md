@@ -27,3 +27,4 @@ To invite the bot in the server: `https://discord.com/oauth2/authorize?client_id
 ## Glossary
 - **blocklist**: A global ban list maintained by the bot's maintainer.
 - **allowlist**: A per-guild list of user ids. Used only in case Skraid has banned a user whom you believe is a legitimate user. 
+- **forbidden words**: A list of words that, if detected, will alert or act on the user who sent the message.
