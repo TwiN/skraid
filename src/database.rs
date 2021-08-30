@@ -73,6 +73,8 @@ impl Database {
         println!("Successfully initiated schema");
         let _ = self.insert_in_forbidden_words("://diskord.".to_string());
         let _ = self.insert_in_forbidden_words("://discorcl.".to_string());
+        let _ = self.insert_in_forbidden_words("://steamcomminuty.".to_string());
+        let _ = self.insert_in_forbidden_words("://steamcommrnunity.".to_string());
     }
 
     pub fn insert_in_blocklist(&self, id: u64, reason: String) -> Result<bool> {
