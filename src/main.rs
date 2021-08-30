@@ -11,7 +11,8 @@ use serenity::client::bridge::gateway::GatewayIntents;
 use serenity::client::Context;
 use serenity::framework::standard::macros::hook;
 use serenity::framework::standard::macros::{check, group, help};
-use serenity::framework::standard::{help_commands, CommandError};
+use serenity::framework::standard::DispatchError::{NotEnoughArguments, Ratelimited, TooManyArguments};
+use serenity::framework::standard::{help_commands, CommandError, DispatchError};
 use serenity::framework::standard::{Args, CommandGroup, CommandOptions, CommandResult, HelpOptions, Reason};
 use serenity::framework::StandardFramework;
 use serenity::model::channel::Message;
@@ -86,9 +87,32 @@ async fn after_hook(ctx: &Context, msg: &Message, cmd_name: &str, error: Result<
     }
 }
 
+#[hook]
+async fn on_dispatch_error(ctx: &Context, msg: &Message, error: DispatchError) {
+    match error {
+        Ratelimited(_) => {
+            let _ = msg.react(ctx, Unicode("⏱".into())).await;
+        }
+        NotEnoughArguments {
+            min,
+            given,
+        } => {
+            let _ = msg.reply(ctx, format!("Need {} arguments, but only got {}.", min, given)).await;
+        }
+        TooManyArguments {
+            max,
+            given,
+        } => {
+            let _ = msg.reply(ctx, format!("Max arguments allowed is {}, but got {}.", max, given)).await;
+        }
+        _ => (),
+    }
+}
+
 async fn create_framework(prefix: String) -> StandardFramework {
     return StandardFramework::new()
         .configure(|c| c.prefix(prefix.as_str()).case_insensitivity(true))
+        .on_dispatch_error(on_dispatch_error)
         .before(before_hook)
         .after(after_hook)
         .help(&HELP)
