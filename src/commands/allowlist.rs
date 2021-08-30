@@ -10,11 +10,12 @@ use serenity::{
 const MAXIMUM_NUMBER_OF_ALLOWLISTED_USERS_PER_GUILD: u64 = 100;
 
 #[command]
-#[description("Add user ID to the guild's list of exception (allowlist). This is only necessary if Skraid banned a user that you believe is legitimate.")]
+#[description("Add user ID to the guild's list of exception (allowlist).\nIn essence, this allows staff members of a guild to let users present in Skraid's global blocklist to join the guild.")]
 #[usage("USER_ID")]
 #[example("000000000000000000")]
 #[aliases(gban)]
 #[min_args(1)]
+#[bucket(staff)]
 async fn allowlist(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     let user_id = match args.single::<String>().unwrap().parse::<u64>() {
         Ok(n) => n,
@@ -47,6 +48,7 @@ async fn allowlist(ctx: &Context, msg: &Message, mut args: Args) -> CommandResul
 #[example("000000000000000000")]
 #[aliases(gunban)]
 #[min_args(1)]
+#[bucket(staff)]
 async fn unallowlist(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
     let user_id = match args.rest().parse::<u64>() {
         Ok(n) => n,
@@ -69,6 +71,7 @@ async fn unallowlist(ctx: &Context, msg: &Message, args: Args) -> CommandResult 
 #[usage("USER_ID")]
 #[example("000000000000000000")]
 #[min_args(1)]
+#[bucket(staff)]
 async fn is_allowlisted(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
     let user_id = match args.rest().parse::<u64>() {
         Ok(n) => n,
@@ -90,6 +93,7 @@ async fn is_allowlisted(ctx: &Context, msg: &Message, args: Args) -> CommandResu
 
 #[command]
 #[description("Retrieves a list of all allowlisted user ids for this guild")]
+#[bucket(staff)]
 async fn get_allowlisted_users(ctx: &Context, msg: &Message) -> CommandResult {
     let allowlisted_users: Vec<u64>;
     {
