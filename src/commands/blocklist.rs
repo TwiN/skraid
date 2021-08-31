@@ -15,21 +15,25 @@ use serenity::{
 #[aliases(gban)]
 #[min_args(1)]
 async fn blocklist(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
-    let id = match args.single::<String>().unwrap().parse::<u64>() {
-        Ok(n) => n,
-        Err(e) => return Err(CommandError::from(e.to_string())),
-    };
+    let ids = args.single::<String>().unwrap();
+    let ids_iterator = ids.split(",");
     let reason = args.rest();
     {
         let data = ctx.data.read().await;
         let mutex = data.get::<Database>().unwrap();
         let db = mutex.lock().unwrap();
-        match db.insert_in_blocklist(id, reason.to_string()) {
-            Ok(_) => (),
-            Err(e) => return Err(CommandError::from(e.to_string())),
-        };
+        for id in ids_iterator {
+            let id = match id.parse::<u64>() {
+                Ok(n) => n,
+                Err(e) => return Err(CommandError::from(e.to_string())),
+            };
+            match db.insert_in_blocklist(id, reason.to_string()) {
+                Ok(_) => (),
+                Err(e) => return Err(CommandError::from(e.to_string())),
+            };
+            log(ctx, msg, format!("Successfully added id={} to blacklist for reason={}", id, reason));
+        }
     }
-    log(ctx, msg, format!("Successfully added id={} to blacklist for reason={}", id, reason));
     return Ok(());
 }
 
