@@ -53,7 +53,7 @@ pub async fn guild_member_addition(ctx: Context, guild_id: GuildId, new_member: 
             if bot_member.unwrap().permissions(&ctx).await.unwrap().contains(Permissions::BAN_MEMBERS) {
                 println!("[{}] user={} is in global blocklist and not allowlisted; action=BAN", guild_id.0, new_member.user.tag());
                 action = " and has been banned";
-                new_member.ban_with_reason(ctx, 0, "Skraid global blocklist").await
+                let _ = new_member.ban_with_reason(&ctx, 0, "Skraid global blocklist").await;
             } else {
                 println!("[{}] user={} is in global blocklist and not allowlisted; action=ALERT", guild_id.0, new_member.user.tag());
                 action = ", but was not banned due to missing BAN_MEMBERS permissions";
@@ -64,6 +64,8 @@ pub async fn guild_member_addition(ctx: Context, guild_id: GuildId, new_member: 
         }
         if alert_channel_id != 0 {
             let _ = ChannelId(alert_channel_id).send_message(&ctx, |m| m.content(format!("User <@{}> is in the global blocklist{}", new_member.user.id.0, action))).await;
+        } else {
+            println!("[{}] WARNING: Guild does not have alert_channel_id configured", guild_id.0);
         }
     }
 }
