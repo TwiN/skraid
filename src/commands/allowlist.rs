@@ -10,10 +10,9 @@ use serenity::{
 const MAXIMUM_NUMBER_OF_ALLOWLISTED_USERS_PER_GUILD: u64 = 100;
 
 #[command]
-#[description("Add user ID to the guild's list of exception (allowlist).\nIn essence, this allows staff members of a guild to let users present in Skraid's global blocklist to join the guild.")]
+#[description("Add user ID to the guild's list of exception (allowlist).\nIn essence, this allows staff members of a guild to let users present in Skraid's global blocklist to join the guild.\n\nNot necessary if the guild is in alert-only mode, which is the default behavior.")]
 #[usage("USER_ID")]
 #[example("000000000000000000")]
-#[aliases(gban)]
 #[min_args(1)]
 #[bucket(staff)]
 async fn allowlist(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
@@ -46,7 +45,6 @@ async fn allowlist(ctx: &Context, msg: &Message, mut args: Args) -> CommandResul
 #[description("Remove user ID from the guild's list of exception (allowlist)")]
 #[usage("USER_ID")]
 #[example("000000000000000000")]
-#[aliases(gunban)]
 #[min_args(1)]
 #[bucket(staff)]
 async fn unallowlist(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
