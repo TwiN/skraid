@@ -63,7 +63,9 @@ pub async fn guild_member_addition(ctx: Context, guild_id: GuildId, new_member: 
             action = ", but no action was taken due to alert_only being set to true";
         }
         if alert_channel_id != 0 {
-            let _ = ChannelId(alert_channel_id).send_message(&ctx, |m| m.content(format!("User <@{}> is in the global blocklist{}", new_member.user.id.0, action))).await;
+            let _ = ChannelId(alert_channel_id)
+                .send_message(&ctx, |m| m.add_embed(|e| e.description(format!("User <@{}> is in the global blocklist{}", new_member.user.id.0, action))))
+                .await;
         } else {
             println!("[{}] WARNING: Guild does not have alert_channel_id configured", guild_id.0);
         }
