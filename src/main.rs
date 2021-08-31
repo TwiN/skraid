@@ -78,6 +78,7 @@ async fn maintainer_check(ctx: &Context, msg: &Message, _: &mut Args, _: &Comman
 
 #[help]
 #[individual_command_tip("To get help with an individual command, pass its name as an argument to this command.")]
+#[no_help_available_text("You do not have sufficient permissions to interact with me.")]
 #[strikethrough_commands_tip_in_guild("")]
 #[strikethrough_commands_tip_in_dm("")]
 #[lacking_permissions(hide)]
