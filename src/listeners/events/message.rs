@@ -42,17 +42,25 @@ pub async fn message(ctx: Context, msg: Message) {
         }
     }
     if contains_forbidden_word {
-        log(&ctx, &msg, format!("user={} posted a message containing a forbidden word: {}", msg.author.id.0, msg.content));
         let bot_user = ctx.cache.current_user().await;
         let bot_member = ctx.cache.member(msg.guild_id.unwrap().0, bot_user.id).await;
         let action: String;
         if !alert_only {
             if bot_member.unwrap().permissions(&ctx).await.unwrap().contains(Permissions::MANAGE_MESSAGES) {
-                log(&ctx, &msg, format!("user={} posted a message containing a forbidden word; action=DELETE: {}", msg.author.tag(), msg.content));
+                log(&ctx, &msg, format!("user={} ({}) posted a message containing a forbidden word; action=DELETE: {}", msg.author.tag(), msg.author.id.0, msg.content));
                 action = " and the message has been deleted.".to_string();
                 let _ = msg.delete(&ctx).await;
             } else {
-                println!("[{}] user={} posted a message containing a forbidden word; action=ALERT", msg.guild_id.unwrap().0, msg.author.tag());
+                log(
+                    &ctx,
+                    &msg,
+                    format!(
+                        "user={} ({}) posted a message containing a forbidden word; action=ALERT (missing MANAGE_MESSAGES permission): {}",
+                        msg.author.tag(),
+                        msg.author.id.0,
+                        msg.content
+                    ),
+                );
                 action = format!(
                     ", but the message was not deleted due to missing MANAGE_MESSAGES permission:\nhttps://discord.com/channels/{}/{}/{}",
                     msg.guild_id.unwrap().0,
@@ -61,7 +69,7 @@ pub async fn message(ctx: Context, msg: Message) {
                 );
             }
         } else {
-            println!("[{}] user={} posted a message containing a forbidden word; action=ALERT", msg.guild_id.unwrap().0, msg.author.tag());
+            log(&ctx, &msg, format!("user={} ({}) posted a message containing a forbidden word; action=ALERT: {}", msg.author.tag(), msg.author.id.0, msg.content));
             action = format!(
                 ", but no action was taken due to alert_only being set to true:\nhttps://discord.com/channels/{}/{}/{}",
                 msg.guild_id.unwrap().0,
@@ -76,7 +84,7 @@ pub async fn message(ctx: Context, msg: Message) {
                 })
                 .await;
         } else {
-            println!("[{}] WARNING: Guild does not have alert_channel_id configured", msg.guild_id.unwrap().0);
+            log(&ctx, &msg, "WARNING: Guild does not have alert_channel_id configured".into());
         }
     }
 }
