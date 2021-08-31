@@ -5,6 +5,7 @@ use crate::utilities::logging::log;
 use commands::allowlist::*;
 use commands::blocklist::*;
 use commands::clear::*;
+use commands::configure::*;
 use commands::forbidden_words::*;
 use commands::status::*;
 use serenity::client::bridge::gateway::GatewayIntents;
@@ -30,14 +31,16 @@ mod listeners;
 mod utilities;
 
 #[group]
-#[commands(status)]
-struct General;
+#[only_in(guilds)]
+#[required_permissions(BAN_MEMBERS)]
+#[commands(status, clear)]
+struct Utilities;
 
 #[group]
 #[only_in(guilds)]
 #[required_permissions(BAN_MEMBERS)]
-#[commands(clear)]
-struct Utilities;
+#[commands(get_guild_config, set_alert_channel, set_alert_only)]
+struct Configuration;
 
 #[group]
 #[only_in(guilds)]
@@ -130,7 +133,7 @@ async fn create_framework(prefix: String) -> StandardFramework {
         .before(before_hook)
         .after(after_hook)
         .help(&HELP)
-        .group(&GENERAL_GROUP)
+        .group(&CONFIGURATION_GROUP)
         .group(&UTILITIES_GROUP)
         .group(&ALLOWLIST_GROUP)
         .group(&SUGGESTION_GROUP)

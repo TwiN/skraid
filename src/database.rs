@@ -29,9 +29,9 @@ impl Database {
     pub fn create_schema(&self) {
         match self.connection.execute(
             "CREATE TABLE IF NOT EXISTS blocklist (
-                user_id   UNSIGNED BIG INT PRIMARY KEY,
-                reason    TEXT,
-                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+                user_id    UNSIGNED BIG INT PRIMARY KEY,
+                reason     TEXT,
+                timestamp  DATETIME DEFAULT CURRENT_TIMESTAMP
             )",
             [],
         ) {
@@ -40,8 +40,10 @@ impl Database {
         }
         match self.connection.execute(
             "CREATE TABLE IF NOT EXISTS guilds (
-                guild_id   UNSIGNED BIG INT PRIMARY KEY,
-                enabled    INTEGER DEFAULT FALSE
+                guild_id          UNSIGNED BIG INT PRIMARY KEY,
+                enabled           INTEGER DEFAULT FALSE,
+                alert_channel_id  UNSIGNED BIG INT,
+                alert_only        INTEGER DEFAULT TRUE
             )",
             [],
         ) {
@@ -174,6 +176,38 @@ impl Database {
             forbidden_words.push(row.get(0).unwrap());
         }
         return Ok(forbidden_words);
+    }
+
+    pub fn get_guild_configuration(&self, guild_id: u64) -> Result<(bool, u64)> {
+        let mut statement = self.connection.prepare("SELECT alert_only, alert_channel_id FROM guilds WHERE guild_id = ?1 LIMIT 1")?;
+        let mut rows = statement.query([guild_id])?;
+        let mut alert_only: bool = true;
+        let mut alert_channel_id: u64 = 0;
+        while let Some(row) = rows.next()? {
+            alert_only = row.get(0).unwrap();
+            alert_channel_id = row.get(1).unwrap();
+        }
+        return Ok((alert_only, alert_channel_id));
+    }
+
+    pub fn upsert_guild_alert_channel_id(&self, guild_id: u64, alert_channel_id: u64) -> Result<bool> {
+        return match self.connection.execute(
+            "INSERT INTO guilds (guild_id, alert_channel_id) VALUES (?1, ?2) ON CONFLICT (guild_id) DO UPDATE SET alert_channel_id = ?2",
+            params![guild_id, alert_channel_id],
+        ) {
+            Ok(_) => Ok(true),
+            Err(error) => Err(error),
+        };
+    }
+
+    pub fn upsert_guild_alert_only(&self, guild_id: u64, alert_only: bool) -> Result<bool> {
+        return match self
+            .connection
+            .execute("INSERT INTO guilds (guild_id, alert_channel_id) VALUES (?1, ?2) ON CONFLICT (guild_id) DO UPDATE SET alert_only = ?2", params![guild_id, alert_only])
+        {
+            Ok(_) => Ok(true),
+            Err(error) => Err(error),
+        };
     }
 }
 
