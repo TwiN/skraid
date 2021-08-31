@@ -73,10 +73,18 @@ impl Database {
             Err(error) => panic!("{}", error),
         }
         println!("Successfully initiated schema");
-        let _ = self.insert_in_forbidden_words("://diskord.".to_string());
-        let _ = self.insert_in_forbidden_words("://discorcl.".to_string());
-        let _ = self.insert_in_forbidden_words("://steamcomminuty.".to_string());
-        let _ = self.insert_in_forbidden_words("://steamcommrnunity.".to_string());
+        let _ = self.insert_in_forbidden_words("discordgift.ru.com".to_string());
+        let _ = self.insert_in_forbidden_words("discord-nitro.link".to_string());
+        let _ = self.insert_in_forbidden_words("freenitros.ru".to_string());
+        let _ = self.insert_in_forbidden_words("gifts-discord.xyz".to_string());
+        let _ = self.insert_in_forbidden_words("discorcl.link".to_string());
+        let _ = self.insert_in_forbidden_words("stearncommunity.link".to_string());
+        let _ = self.insert_in_forbidden_words("steamcomnumnity.com".to_string());
+        let _ = self.insert_in_forbidden_words("steamcomnumilty.com".to_string());
+        let _ = self.insert_in_forbidden_words("steamcomnumily.com".to_string());
+        let _ = self.insert_in_forbidden_words("steamcommutyniu.com".to_string());
+        let _ = self.insert_in_forbidden_words("steancomunnity.ru".to_string());
+        let _ = self.insert_in_forbidden_words("streancommunuty.ru".to_string());
     }
 
     pub fn insert_in_blocklist(&self, id: u64, reason: String) -> Result<bool> {
