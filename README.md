@@ -1,6 +1,17 @@
 # skraid
-Skraid -- a word play on scram, scam and raid -- is a bot whose only purpose is to put an end to the growing amount of
-raids and scams in Discord.
+Skraid - a word play on scram, scam and raid - is an attempt to harness the power of large communities in order
+to put an end, or at least to reduce the blast radius of raids and common scams by ensuring that scammers and
+users known to take part in raids are banned before they can cause any harm.
+
+This is, however, easier said than done.
+
+This bot is built with several fail-safe mechanisms to prevent abuse.
+
+One of these fail-safe mechanisms is the fact that inviting the bot to a guild does not allow you to modify the global
+ban list. The staff members of each guild (i.e. users with BAN_MEMBERS permissions) may suggest the addition of users
+to the global ban list by using s!suggest_blocklist USER_ID, but the decision is ultimately up to several factors
+which will not be disclosed to prevent malicious actors from attempting to circumvent the system. Do not be too
+worried, though, as one of the measures put in place requires manual action from the maintainer of the bot.
 
 
 ## Usage
@@ -30,7 +41,7 @@ Where `<ALERT_CHANNEL_ID>` is the channel ID of your alert channel (e.g. `860216
 - Supports per-server list of "exceptions" (allowlist), in case a guild wishes to let a user in the global ban list (blocklist) join their server anyways. This only really applies if the bot is configured to ban instead of alert.
 - Detect messages containing known phishing/scam links and send an alert, or delete said messages if configured to do so.
 - Configuration for setting up a channel for alerts, including replacing all actions by alerts sent to said channel.
-- Has some utility commands to manage raids (e.g. `s!clear`)
+- Has some utility commands to manage raids
 
 
 ## Commands
