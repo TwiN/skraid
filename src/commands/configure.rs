@@ -87,6 +87,10 @@ async fn get_guild_config(ctx: &Context, msg: &Message) -> CommandResult {
             Err(e) => return Err(CommandError::from(e.to_string())),
         }
     }
-    let _ = msg.reply(ctx, format!("**alert_only:** {}\n**alert_channel_id:** <#{}>", alert_only, alert_channel_id)).await;
+    if alert_channel_id == 0 {
+        let _ = msg.reply(ctx, format!("**alert_only:** {}\n**alert_channel_id:** (not configured)", alert_only)).await;
+    } else {
+        let _ = msg.reply(ctx, format!("**alert_only:** {}\n**alert_channel_id:** <#{}>", alert_only, alert_channel_id)).await;
+    }
     Ok(())
 }
