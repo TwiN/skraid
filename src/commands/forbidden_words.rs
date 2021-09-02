@@ -12,7 +12,7 @@ use serenity::{
 #[description("Add a word to the forbidden words")]
 #[usage("WORD")]
 #[example("://discorcl.")]
-#[aliases(gban)]
+#[aliases(forbid)]
 #[min_args(1)]
 async fn forbid_word(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
     let word = args.rest();
@@ -33,7 +33,7 @@ async fn forbid_word(ctx: &Context, msg: &Message, args: Args) -> CommandResult 
 #[description("Remove a word from the forbidden words")]
 #[usage("USER_ID")]
 #[example("000000000000000000")]
-#[aliases(gunban)]
+#[aliases(unforbid)]
 #[min_args(1)]
 async fn unforbid_word(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
     let word = args.rest();

@@ -12,7 +12,7 @@ use serenity::{
 #[description("Add user ID to the global ban list")]
 #[usage("USER_ID [REASON]")]
 #[example("000000000000000000 Scam")]
-#[aliases(gban)]
+#[aliases(gban, bl)]
 #[min_args(1)]
 async fn blocklist(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     let ids = args.single::<String>().unwrap();
@@ -41,7 +41,7 @@ async fn blocklist(ctx: &Context, msg: &Message, mut args: Args) -> CommandResul
 #[description("Remove user ID from the global ban list")]
 #[usage("USER_ID")]
 #[example("000000000000000000")]
-#[aliases(gunban)]
+#[aliases(gunban, ubl)]
 #[min_args(1)]
 async fn unblocklist(ctx: &Context, _: &Message, args: Args) -> CommandResult {
     let id = match args.rest().parse::<u64>() {
