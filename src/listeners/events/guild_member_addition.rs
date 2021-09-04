@@ -5,6 +5,9 @@ use serenity::model::id::{ChannelId, GuildId};
 use serenity::model::Permissions;
 
 pub async fn guild_member_addition(ctx: Context, guild_id: GuildId, new_member: Member) {
+    if new_member.user.bot {
+        return;
+    }
     println!("[{}] {} joined guild {}", guild_id.0, new_member.user.tag(), guild_id.name(&ctx).await.unwrap());
     let is_blocklisted: bool;
     let mut is_allowlisted: bool = false;
