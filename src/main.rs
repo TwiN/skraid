@@ -62,10 +62,6 @@ struct Maintainer;
 #[check]
 #[name(Maintainer)]
 async fn maintainer_check(ctx: &Context, msg: &Message, _: &mut Args, _: &CommandOptions) -> Result<(), Reason> {
-    if !msg.is_private() && msg.guild_id.unwrap().0 == 333949691962195969 {
-        // TODO: remove this statement after verification
-        return Ok(());
-    }
     let maintainer_id: String;
     {
         let reader = ctx.data.read().await;
@@ -88,12 +84,6 @@ async fn maintainer_check(ctx: &Context, msg: &Message, _: &mut Args, _: &Comman
 #[lacking_permissions(hide)]
 #[lacking_conditions(hide)]
 async fn help(ctx: &Context, msg: &Message, args: Args, help_options: &'static HelpOptions, groups: &[&'static CommandGroup], owners: HashSet<UserId>) -> CommandResult {
-    if !msg.is_private() && msg.guild_id.unwrap().0 == 333949691962195969 {
-        // TODO: remove this statement after verification
-        let _ = msg
-            .reply(ctx, "NOTE: This guild has been granted a temporary maintainer access for verification purposes. Normally, commands under 'Maintainer' would not be available.")
-            .await;
-    }
     let _ = help_commands::with_embeds(ctx, msg, args, help_options, groups, owners).await;
     Ok(())
 }
