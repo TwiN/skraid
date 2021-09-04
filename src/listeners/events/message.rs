@@ -87,5 +87,9 @@ pub async fn message(ctx: Context, msg: Message) {
         } else {
             log(&ctx, &msg, "WARNING: Guild does not have alert_channel_id configured".into());
         }
+    } else if message_content.contains("http")
+        && (message_content.contains("free") || message_content.contains("nitro") || message_content.contains("skin") || message_content.contains("win"))
+    {
+        log(&ctx, &msg, format!("Potentially suspicious message: {}", msg.content.to_string()));
     }
 }
