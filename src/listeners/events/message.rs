@@ -13,6 +13,7 @@ pub async fn message(ctx: Context, msg: Message) {
     if msg.content.len() < 15 {
         return;
     }
+    let message_content = msg.content.to_lowercase();
     let contains_forbidden_word: bool;
     let mut alert_only: bool = false;
     let mut alert_channel_id: u64 = 0;
@@ -20,7 +21,7 @@ pub async fn message(ctx: Context, msg: Message) {
         let data = ctx.data.read().await;
         let mutex = data.get::<Database>().unwrap();
         let db = mutex.lock().unwrap();
-        contains_forbidden_word = match db.contains_forbidden_word(msg.content.to_string()) {
+        contains_forbidden_word = match db.contains_forbidden_word(message_content.to_string()) {
             Ok(b) => b,
             Err(e) => {
                 log(&ctx, &msg, format!("Failed to check if message contained forbidden word: {}", e.to_string()));
@@ -47,7 +48,7 @@ pub async fn message(ctx: Context, msg: Message) {
         let action: String;
         if !alert_only {
             if bot_member.unwrap().permissions(&ctx).await.unwrap().contains(Permissions::MANAGE_MESSAGES) {
-                log(&ctx, &msg, format!("user={} ({}) posted a message containing a forbidden word; action=DELETE: {}", msg.author.tag(), msg.author.id.0, msg.content));
+                log(&ctx, &msg, format!("user={} ({}) posted a message containing a forbidden word; action=DELETE: {}", msg.author.tag(), msg.author.id.0, message_content));
                 action = " and the message has been deleted.".to_string();
                 let _ = msg.delete(&ctx).await;
             } else {
@@ -69,7 +70,7 @@ pub async fn message(ctx: Context, msg: Message) {
                 );
             }
         } else {
-            log(&ctx, &msg, format!("user={} ({}) posted a message containing a forbidden word; action=ALERT: {}", msg.author.tag(), msg.author.id.0, msg.content));
+            log(&ctx, &msg, format!("user={} ({}) posted a message containing a forbidden word; action=ALERT: {}", msg.author.tag(), msg.author.id.0, message_content));
             action = format!(
                 ", but no action was taken due to alert_only being set to true:\nhttps://discord.com/channels/{}/{}/{}",
                 msg.guild_id.unwrap().0,
@@ -80,7 +81,7 @@ pub async fn message(ctx: Context, msg: Message) {
         if alert_channel_id != 0 {
             let _ = ChannelId(alert_channel_id)
                 .send_message(&ctx, |m| {
-                    m.add_embed(|e| e.description(format!("User <@{}> posted a message containing a forbidden word{}: ```{}```", msg.author.id.0, action, msg.content)))
+                    m.add_embed(|e| e.description(format!("User <@{}> posted a message containing a forbidden word{}: ```{}```", msg.author.id.0, action, message_content)))
                 })
                 .await;
         } else {

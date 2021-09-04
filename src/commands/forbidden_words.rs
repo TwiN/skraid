@@ -20,7 +20,7 @@ async fn forbid_word(ctx: &Context, msg: &Message, args: Args) -> CommandResult 
         let data = ctx.data.read().await;
         let mutex = data.get::<Database>().unwrap();
         let db = mutex.lock().unwrap();
-        match db.insert_in_forbidden_words(word.to_string()) {
+        match db.insert_in_forbidden_words(word.to_lowercase()) {
             Ok(_) => (),
             Err(e) => return Err(CommandError::from(e.to_string())),
         };
@@ -41,7 +41,7 @@ async fn unforbid_word(ctx: &Context, msg: &Message, args: Args) -> CommandResul
         let data = ctx.data.read().await;
         let mutex = data.get::<Database>().unwrap();
         let db = mutex.lock().unwrap();
-        match db.remove_from_forbidden_words(word.to_string()) {
+        match db.remove_from_forbidden_words(word.to_lowercase()) {
             Ok(b) => b,
             Err(e) => return Err(CommandError::from(e.to_string())),
         };
@@ -61,7 +61,7 @@ async fn contains_forbidden_word(ctx: &Context, msg: &Message, args: Args) -> Co
         let data = ctx.data.read().await;
         let mutex = data.get::<Database>().unwrap();
         let db = mutex.lock().unwrap();
-        contains_forbidden_word = match db.contains_forbidden_word(args.rest().to_string()) {
+        contains_forbidden_word = match db.contains_forbidden_word(args.rest().to_lowercase()) {
             Ok(b) => b,
             Err(e) => return Err(CommandError::from(e.to_string())),
         };
