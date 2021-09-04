@@ -11,11 +11,10 @@ use serenity::{
 #[description("Set the channel where the alerts will be sent")]
 #[usage("CHANNEL_ID")]
 #[example("000000000000000000")]
-#[min_args(1)]
-#[max_args(1)]
+#[num_args(1)]
 #[bucket(staff)]
 async fn set_alert_channel(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
-    let arguments = args.rest();
+    let arguments: String = args.rest().chars().filter(|c| c.is_digit(10)).collect();
     let alert_channel_id = match arguments.parse::<u64>() {
         Ok(n) => n,
         Err(e) => return Err(CommandError::from(e.to_string())),
@@ -41,8 +40,7 @@ async fn set_alert_channel(ctx: &Context, msg: &Message, args: Args) -> CommandR
 #[description("Configure whether Skraid should only send alert without taking any action.")]
 #[usage("BOOLEAN")]
 #[example("true")]
-#[min_args(1)]
-#[max_args(1)]
+#[num_args(1)]
 #[bucket(staff)]
 async fn set_alert_only(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
     let value = args.rest();
@@ -68,8 +66,7 @@ async fn set_alert_only(ctx: &Context, msg: &Message, args: Args) -> CommandResu
 
 #[command]
 #[description("Retrieve the current guild configuration.")]
-#[min_args(0)]
-#[max_args(0)]
+#[num_args(0)]
 #[bucket(staff)]
 async fn get_guild_config(ctx: &Context, msg: &Message) -> CommandResult {
     let alert_only: bool;

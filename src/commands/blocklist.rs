@@ -42,7 +42,7 @@ async fn blocklist(ctx: &Context, msg: &Message, mut args: Args) -> CommandResul
 #[usage("USER_ID")]
 #[example("000000000000000000")]
 #[aliases(gunban, ubl)]
-#[min_args(1)]
+#[num_args(1)]
 async fn unblocklist(ctx: &Context, _: &Message, args: Args) -> CommandResult {
     let id = match args.rest().parse::<u64>() {
         Ok(n) => n,
@@ -64,7 +64,7 @@ async fn unblocklist(ctx: &Context, _: &Message, args: Args) -> CommandResult {
 #[description("Check if a user ID is in the global ban list")]
 #[usage("USER_ID")]
 #[example("000000000000000000")]
-#[min_args(1)]
+#[num_args(1)]
 async fn is_blocklisted(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
     let id = match args.rest().parse::<u64>() {
         Ok(n) => n,

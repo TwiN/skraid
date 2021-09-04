@@ -13,10 +13,14 @@ const MAXIMUM_NUMBER_OF_ALLOWLISTED_USERS_PER_GUILD: u64 = 100;
 #[description("Add user ID to the guild's list of exception (allowlist).\nIn essence, this allows staff members of a guild to let users present in Skraid's global blocklist to join the guild.\n\nNot necessary if the guild is in alert-only mode, which is the default behavior.")]
 #[usage("USER_ID")]
 #[example("000000000000000000")]
-#[min_args(1)]
+#[num_args(1)]
 #[bucket(staff)]
-async fn allowlist(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
-    let user_id = match args.single::<String>().unwrap().parse::<u64>() {
+async fn allowlist(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
+    if msg.content.contains("<@&") {
+        return Err(CommandError::from("roles cannot be added to the guild's allowlist"));
+    }
+    let argument: String = args.rest().chars().filter(|c| c.is_digit(10)).collect();
+    let user_id = match argument.parse::<u64>() {
         Ok(n) => n,
         Err(e) => return Err(CommandError::from(e.to_string())),
     };
@@ -45,10 +49,11 @@ async fn allowlist(ctx: &Context, msg: &Message, mut args: Args) -> CommandResul
 #[description("Remove user ID from the guild's list of exception (allowlist)")]
 #[usage("USER_ID")]
 #[example("000000000000000000")]
-#[min_args(1)]
+#[num_args(1)]
 #[bucket(staff)]
 async fn unallowlist(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
-    let user_id = match args.rest().parse::<u64>() {
+    let argument: String = args.rest().chars().filter(|c| c.is_digit(10)).collect();
+    let user_id = match argument.parse::<u64>() {
         Ok(n) => n,
         Err(e) => return Err(CommandError::from(e.to_string())),
     };
@@ -68,10 +73,11 @@ async fn unallowlist(ctx: &Context, msg: &Message, args: Args) -> CommandResult 
 #[description("Check if a user ID is in the guild's list of exception (allowlist)")]
 #[usage("USER_ID")]
 #[example("000000000000000000")]
-#[min_args(1)]
+#[num_args(1)]
 #[bucket(staff)]
 async fn is_allowlisted(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
-    let user_id = match args.rest().parse::<u64>() {
+    let argument: String = args.rest().chars().filter(|c| c.is_digit(10)).collect();
+    let user_id = match argument.parse::<u64>() {
         Ok(n) => n,
         Err(e) => return Err(CommandError::from(e.to_string())),
     };
