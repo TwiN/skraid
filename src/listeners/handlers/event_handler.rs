@@ -1,4 +1,5 @@
-use crate::listeners::events::{guild_member_addition, message, ready};
+use crate::listeners::events::{guild_create, guild_member_addition, message, ready};
+use serenity::model::guild::Guild;
 use serenity::{
     async_trait,
     client::{Context, EventHandler},
@@ -19,5 +20,9 @@ impl EventHandler for Handler {
 
     async fn ready(&self, ctx: Context, ready: Ready) {
         ready::ready(ctx, ready).await;
+    }
+
+    async fn guild_create(&self, ctx: Context, guild: Guild, is_new: bool) {
+        guild_create::guild_create(ctx, guild, is_new).await;
     }
 }
