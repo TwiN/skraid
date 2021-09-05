@@ -49,7 +49,7 @@ pub async fn message(ctx: Context, msg: Message) {
         if !alert_only {
             if bot_member.unwrap().permissions(&ctx).await.unwrap().contains(Permissions::MANAGE_MESSAGES) {
                 log(&ctx, &msg, format!("user={} ({}) posted a message containing a forbidden word; action=DELETE: {}", msg.author.tag(), msg.author.id.0, message_content));
-                action = " and the message has been deleted.".to_string();
+                action = " and the message has been deleted".to_string();
                 let _ = msg.delete(&ctx).await;
             } else {
                 log(
@@ -62,26 +62,26 @@ pub async fn message(ctx: Context, msg: Message) {
                         msg.content
                     ),
                 );
-                action = format!(
-                    ", but the message was not deleted due to missing MANAGE_MESSAGES permission:\nhttps://discord.com/channels/{}/{}/{}",
-                    msg.guild_id.unwrap().0,
-                    msg.channel_id.0,
-                    msg.id.0
-                );
+                action = ", but it was not deleted due to missing MANAGE_MESSAGES permission".into();
             }
         } else {
             log(&ctx, &msg, format!("user={} ({}) posted a message containing a forbidden word; action=ALERT: {}", msg.author.tag(), msg.author.id.0, message_content));
-            action = format!(
-                ", but no action was taken due to alert_only being set to true:\nhttps://discord.com/channels/{}/{}/{}",
-                msg.guild_id.unwrap().0,
-                msg.channel_id.0,
-                msg.id.0
-            );
+            action = ", but no action was taken due to being in alert-only mode".into();
         }
         if alert_channel_id != 0 {
             let _ = ChannelId(alert_channel_id)
                 .send_message(&ctx, |m| {
-                    m.add_embed(|e| e.description(format!("User <@{}> posted a message containing a forbidden word{}: ```{}```", msg.author.id.0, action, message_content)))
+                    m.add_embed(|e| {
+                        e.description(format!(
+                            "<@{0}> posted a [message](https://discord.com/channels/{1}/{2}/{3}) in <#{2}> containing a forbidden word{4}: ```{5}```",
+                            msg.author.id.0,
+                            msg.guild_id.unwrap().0,
+                            msg.channel_id.0,
+                            msg.id.0,
+                            action,
+                            message_content
+                        ))
+                    })
                 })
                 .await;
         } else {
