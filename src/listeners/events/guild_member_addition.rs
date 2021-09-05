@@ -1,5 +1,6 @@
 use crate::database::Database;
 use serenity::client::Context;
+use serenity::framework::standard::BucketBuilder;
 use serenity::model::guild::Member;
 use serenity::model::id::{ChannelId, GuildId};
 use serenity::model::Permissions;
@@ -8,7 +9,7 @@ pub async fn guild_member_addition(ctx: Context, guild_id: GuildId, new_member: 
     if new_member.user.bot {
         return;
     }
-    println!("[{}] {} joined guild {}", guild_id.0, new_member.user.tag(), guild_id.name(&ctx).await.unwrap());
+    println!("[{}] {} ({}) joined {}", guild_id.0, new_member.user.tag(), new_member.user.id.0, guild_id.name(&ctx).await.unwrap());
     let is_blocklisted: bool;
     let mut is_allowlisted: bool = false;
     let mut alert_only: bool = false;

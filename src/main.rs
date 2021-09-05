@@ -77,7 +77,7 @@ async fn maintainer_check(ctx: &Context, msg: &Message, _: &mut Args, _: &Comman
 }
 
 #[help]
-#[individual_command_tip("To get help with an individual command, pass its name as an argument to this command.")]
+#[individual_command_tip("Skraid is completely managed, so outside of configuring the alert channel (`set_alert_channel`), you don't have to do anything!\n\nTo get help with an individual command, pass its name as an argument to this command.")]
 #[no_help_available_text("You do not have sufficient permissions to interact with me.")]
 #[strikethrough_commands_tip_in_guild("")]
 #[strikethrough_commands_tip_in_dm("")]
@@ -139,9 +139,6 @@ async fn create_framework(prefix: String) -> StandardFramework {
         .group(&ALLOWLIST_GROUP)
         .group(&SUGGESTION_GROUP)
         .group(&MAINTAINER_GROUP)
-        // rate limit after 1 use over 3 seconds
-        .bucket("general", |b| b.limit_for(LimitedFor::User).time_span(3).limit(1))
-        .await
         // rate limit after 3 uses over 5 seconds
         .bucket("staff", |b| b.limit_for(LimitedFor::Guild).time_span(5).limit(3))
         .await
