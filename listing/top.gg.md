@@ -105,8 +105,16 @@ No. Not only is alert_only is set to true by default, the bot does not monitor t
 ### How efficient is Skraid?
 What you need to understand is that this bot will do good only if large communities are willing to give it a try, since they are the ones who are the most often targeted by raiders and scammers. As such, the efficiency of Skraid will increase over time.
 
+### What kind of user id should I suggest for the global blocklist?
+There are only two valid reasons for submitting a blocklist suggestion using `s!suggest_blocklist`:
+1. **raid**: A user that was part of a raid
+2. **scam**: A user that was sending messages in text channels with the purpose to scam other users (e.g. Nitro scam).
+
+No other reasons are valid. Skraid's only purpose is really to just fight scam and raids, not to moderate every behaviors of every user in your guild. This is because not every guild have the same rules; but the one thing that every guild has in common is that they don't want their members to fall for a scam or be disturbed by a raid.
+
+
 
 ## Glossary
-- **blocklist**: A global ban list maintained by the bot's maintainer.
-- **allowlist**: A per-guild list of user ids. Used only in case Skraid has banned a user whom you believe is a legitimate user.
-- **forbidden words**: A list of words that, if detected, will send an alert to the configured alert channel and, optionally, delete the message.
+- **blocklist**: A global list maintained by the bot's maintainer.
+- **allowlist**: A per-guild list of user ids. Used only in case Skraid has flagged or banned a user whom you believe is a legitimate user.
+- **forbidden words**: A list of words that, if detected, will send an alert to the configured alert channel and, optionally, delete the message. These are mostly links of known scam websites.
