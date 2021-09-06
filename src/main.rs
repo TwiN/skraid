@@ -1,3 +1,4 @@
+use crate::antispam::AntiSpam;
 use crate::config::{load_configuration_map, Config};
 use crate::database::Database;
 use crate::listeners::handlers::event_handler::Handler;
@@ -24,6 +25,9 @@ use serenity::Client;
 use std::collections::HashSet;
 use std::sync::{Arc, Mutex, RwLock};
 
+extern crate lru_time_cache;
+
+mod antispam;
 mod commands;
 mod config;
 mod database;
@@ -170,6 +174,7 @@ async fn main() {
         let mut data = client.data.write().await;
         data.insert::<Config>(Arc::new(RwLock::new(config)));
         data.insert::<Database>(Arc::new(Mutex::new(Database::new(database_path))));
+        data.insert::<AntiSpam>(Arc::new(Mutex::new(AntiSpam::new())));
     }
     if let Err(why) = client.start().await {
         eprintln!("An error occurred while running the client: {:?}", why);

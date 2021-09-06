@@ -31,7 +31,7 @@ async fn blocklist(ctx: &Context, msg: &Message, mut args: Args) -> CommandResul
                 Ok(_) => (),
                 Err(e) => return Err(CommandError::from(e.to_string())),
             };
-            log(ctx, msg, format!("Successfully added id={} to blacklist for reason={}", id, reason));
+            log(ctx, msg, format!("Successfully added id={} to blocklist for reason={}", id, reason));
         }
     }
     return Ok(());

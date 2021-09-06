@@ -1,11 +1,13 @@
 [package]
 name = "skraid"
-version = "0.1.7"
+version = "0.1.8"
 edition = "2018"
 license = "MIT"
 
 [dependencies]
 serenity = "0.10"
+lru_time_cache = "0.11"
+r8limit = "0.1"
 
 [dependencies.rusqlite]
 version = "0.25"

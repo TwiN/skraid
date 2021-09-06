@@ -1,3 +1,4 @@
+use crate::antispam::AntiSpam;
 use crate::database::Database;
 use crate::utilities::logging::log;
 use serenity::client::Context;
@@ -8,6 +9,19 @@ use serenity::model::Permissions;
 pub async fn message(ctx: Context, msg: Message) {
     if msg.author.bot || msg.is_private() {
         return;
+    }
+    let is_spamming: bool;
+    {
+        let data = ctx.data.read().await;
+        let mutex = data.get::<AntiSpam>().unwrap();
+        let mut anti_spam = mutex.lock().unwrap();
+        is_spamming = anti_spam.check_if_spamming(msg.guild_id.unwrap().0, msg.author.id.0);
+    }
+    if is_spamming {
+        //let _ = msg.react(&ctx, Unicode("❌".into())).await;
+        log(&ctx, &msg, format!("User {} may be spamming (NO ACTION TAKEN): {}", msg.author.tag(), msg.content));
+    } else {
+        //let _ = msg.react(&ctx, Unicode("✅".into())).await;
     }
     // Ignore short messages, unlikely to be noteworthy
     if msg.content.len() < 15 {
