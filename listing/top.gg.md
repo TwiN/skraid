@@ -56,11 +56,13 @@ All commands must be prefixed by the `COMMAND_PREFIX`, or `s!` by default.
 
 
 ### Configuration
-| Command name      | Description |
-|:----------------- |:----------- |
-| get_guild_config  | Retrieve the current guild configuration.
-| set_alert_channel | Configure an alert channel by passing the desired channel id as argument
-| set_alert_only    | Configure Skraid's mode.By default, this is set to true.
+| Command name              | Description |
+|:------------------------- |:----------- |
+| get_guild_config          | Retrieve the current guild configuration.
+| set_alert_channel         | Configure an alert channel by passing the desired channel id as argument
+| set_alert_only            | Configure Skraid's mode. By default, this is set to true. If set to false, if a user in the blocklist joins the server, they will be automatically banned. Likewise, if a user posts a message containing a forbidden word (e.g. a link known to be related to phishing), said message will be deleted. In any case, alerts will be sent as long as the alert channel is configured.
+| set_ban_new_user_on_join  | Configure whether Skraid should automatically ban users that were created less than two hours ago when they join the guild.
+| set_ban_user_on_join      | Configure whether Skraid should automatically ban every user that joins the guild. Used for when your guild is actively being raided.
 
 **NOTE**: Setting `set_alert_only` to false will cause any user in the global blocklist to be banned as soon as they join the server. Furthermore, it will also cause the deletion of new messages containing one or more forbidden word (e.g. a link known to be related to phishing). In any case, alerts will always be sent as long as the alert channel is configured.
 
