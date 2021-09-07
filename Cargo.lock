@@ -958,6 +958,7 @@ dependencies = [
 name = "skraid"
 version = "0.1.8"
 dependencies = [
+ "chrono",
  "lru_time_cache",
  "r8limit",
  "rusqlite",

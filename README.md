@@ -1,4 +1,6 @@
 # skraid
+[Docker Repository](https://hub.docker.com/r/twinproduction/skraid)
+
 Skraid - a word play on scram, scam and raid - is an attempt to harness the power of large communities in order
 to put an end, or at least to reduce the blast radius of raids and common scams by ensuring that scammers and
 users known to take part in raids are banned before they can cause any harm.
@@ -48,11 +50,13 @@ Where `<ALERT_CHANNEL_ID>` is the channel ID of your alert channel (e.g. `860216
 All commands must be prefixed by the `COMMAND_PREFIX`, or `s!` by default.
 
 ### Configuration
-| Command name      | Description |
-|:----------------- |:----------- |
-| get_guild_config  | Retrieve the current guild configuration.
-| set_alert_channel | Configure an alert channel by passing the desired channel id as argument
-| set_alert_only    | Configure Skraid's mode.By default, this is set to true. If set to false, if a user in the blocklist joins the server, they will be automatically banned. Likewise, if a user posts a message containing a forbidden word (e.g. a link known to be related to phishing), said message will be deleted. In any case, alerts will be sent as long as the alert channel is configured.
+| Command name              | Description |
+|:------------------------- |:----------- |
+| get_guild_config          | Retrieve the current guild configuration.
+| set_alert_channel         | Configure an alert channel by passing the desired channel id as argument
+| set_alert_only            | Configure Skraid's mode. By default, this is set to true. If set to false, if a user in the blocklist joins the server, they will be automatically banned. Likewise, if a user posts a message containing a forbidden word (e.g. a link known to be related to phishing), said message will be deleted. In any case, alerts will be sent as long as the alert channel is configured.
+| set_ban_new_user_on_join  | Configure whether Skraid should automatically ban users that were created less than two hours ago when they join the guild.
+| set_ban_user_on_join      | Configure whether Skraid should automatically ban every user that joins the guild. Used for when your guild is actively being raided.
 
 ### Allowlist
 Each guild has their own separate allowlist which, in the case that they chose to enable Skraid's automatic banning capabilities,

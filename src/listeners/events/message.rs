@@ -18,10 +18,7 @@ pub async fn message(ctx: Context, msg: Message) {
         is_spamming = anti_spam.check_if_spamming(msg.guild_id.unwrap().0, msg.author.id.0);
     }
     if is_spamming {
-        //let _ = msg.react(&ctx, Unicode("❌".into())).await;
         log(&ctx, &msg, format!("User {} may be spamming (NO ACTION TAKEN): {}", msg.author.tag(), msg.content));
-    } else {
-        //let _ = msg.react(&ctx, Unicode("✅".into())).await;
     }
     // Ignore short messages, unlikely to be noteworthy
     if msg.content.len() < 15 {
@@ -44,7 +41,7 @@ pub async fn message(ctx: Context, msg: Message) {
         };
         if contains_forbidden_word {
             match db.get_guild_configuration(msg.guild_id.unwrap().0) {
-                Ok((a, b)) => {
+                Ok((a, b, _, _)) => {
                     alert_only = a;
                     alert_channel_id = b;
                     ()

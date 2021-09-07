@@ -40,16 +40,22 @@ impl Database {
         }
         match self.connection.execute(
             "CREATE TABLE IF NOT EXISTS guilds (
-                guild_id          UNSIGNED BIG INT PRIMARY KEY,
-                enabled           INTEGER DEFAULT FALSE,
-                alert_channel_id  UNSIGNED BIG INT,
-                alert_only        INTEGER DEFAULT TRUE
+                guild_id                 UNSIGNED BIG INT PRIMARY KEY,
+                enabled                  INTEGER DEFAULT FALSE,
+                alert_channel_id         UNSIGNED BIG INT,
+                alert_only               INTEGER DEFAULT TRUE,
+                ban_new_user_on_join     INTEGER DEFAULT FALSE,
+                ban_user_on_join         INTEGER DEFAULT FALSE
             )",
             [],
         ) {
             Ok(_) => (),
             Err(error) => panic!("{}", error),
         }
+        // TODO: remove this once the migration is completed.
+        let _ = self.connection.execute("ALTER TABLE guilds ADD ban_new_user_on_join INTEGER DEFAULT FALSE", []);
+        // TODO: remove this once the migration is completed.
+        let _ = self.connection.execute("ALTER TABLE guilds ADD ban_user_on_join INTEGER DEFAULT FALSE", []);
         match self.connection.execute(
             "CREATE TABLE IF NOT EXISTS allowlist (
                 id         INTEGER PRIMARY KEY,
@@ -186,16 +192,20 @@ impl Database {
         return Ok(forbidden_words);
     }
 
-    pub fn get_guild_configuration(&self, guild_id: u64) -> Result<(bool, u64)> {
-        let mut statement = self.connection.prepare("SELECT alert_only, alert_channel_id FROM guilds WHERE guild_id = ?1 LIMIT 1")?;
+    pub fn get_guild_configuration(&self, guild_id: u64) -> Result<(bool, u64, bool, bool)> {
+        let mut statement = self.connection.prepare("SELECT alert_only, alert_channel_id, ban_new_user_on_join, ban_user_on_join FROM guilds WHERE guild_id = ?1 LIMIT 1")?;
         let mut rows = statement.query([guild_id])?;
         let mut alert_only: bool = true;
         let mut alert_channel_id: u64 = 0;
+        let mut ban_new_user_on_join: bool = false;
+        let mut ban_user_on_join: bool = false;
         while let Some(row) = rows.next()? {
             alert_only = row.get(0).unwrap();
             alert_channel_id = row.get(1).unwrap();
+            ban_new_user_on_join = row.get(2).unwrap();
+            ban_user_on_join = row.get(3).unwrap();
         }
-        return Ok((alert_only, alert_channel_id));
+        return Ok((alert_only, alert_channel_id, ban_new_user_on_join, ban_user_on_join));
     }
 
     pub fn upsert_guild_alert_channel_id(&self, guild_id: u64, alert_channel_id: u64) -> Result<bool> {
@@ -213,6 +223,26 @@ impl Database {
             .connection
             .execute("INSERT INTO guilds (guild_id, alert_channel_id) VALUES (?1, ?2) ON CONFLICT (guild_id) DO UPDATE SET alert_only = ?2", params![guild_id, alert_only])
         {
+            Ok(_) => Ok(true),
+            Err(error) => Err(error),
+        };
+    }
+
+    pub fn upsert_guild_ban_new_user_on_join(&self, guild_id: u64, ban_new_user_on_join: bool) -> Result<bool> {
+        return match self.connection.execute(
+            "INSERT INTO guilds (guild_id, ban_new_user_on_join) VALUES (?1, ?2) ON CONFLICT (guild_id) DO UPDATE SET ban_new_user_on_join = ?2",
+            params![guild_id, ban_new_user_on_join],
+        ) {
+            Ok(_) => Ok(true),
+            Err(error) => Err(error),
+        };
+    }
+
+    pub fn upsert_guild_ban_user_on_join(&self, guild_id: u64, ban_user_on_join: bool) -> Result<bool> {
+        return match self.connection.execute(
+            "INSERT INTO guilds (guild_id, ban_user_on_join) VALUES (?1, ?2) ON CONFLICT (guild_id) DO UPDATE SET ban_user_on_join = ?2",
+            params![guild_id, ban_user_on_join],
+        ) {
             Ok(_) => Ok(true),
             Err(error) => Err(error),
         };

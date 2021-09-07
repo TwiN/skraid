@@ -43,7 +43,7 @@ struct Utilities;
 #[group]
 #[only_in(guilds)]
 #[required_permissions(BAN_MEMBERS)]
-#[commands(get_guild_config, set_alert_channel, set_alert_only)]
+#[commands(get_guild_config, set_alert_channel, set_alert_only, set_ban_new_user_on_join, set_ban_user_on_join)]
 struct Configuration;
 
 #[group]
