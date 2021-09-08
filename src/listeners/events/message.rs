@@ -1,24 +1,85 @@
-use crate::antispam::AntiSpam;
+use crate::antispam::{AntiSpam, ChannelAndMessageId};
 use crate::database::Database;
 use crate::utilities::logging::log;
 use serenity::client::Context;
 use serenity::model::channel::Message;
-use serenity::model::id::ChannelId;
+use serenity::model::id::{ChannelId, MessageId};
 use serenity::model::Permissions;
+use std::collections::HashMap;
 
 pub async fn message(ctx: Context, msg: Message) {
     if msg.author.bot || msg.is_private() {
         return;
     }
     let is_spamming: bool;
+    let mut messages_to_delete: Option<Vec<ChannelAndMessageId>> = None;
+    let mut alert_only: bool = false;
+    let mut alert_channel_id: u64 = 0;
     {
         let data = ctx.data.read().await;
-        let mutex = data.get::<AntiSpam>().unwrap();
-        let mut anti_spam = mutex.lock().unwrap();
-        is_spamming = anti_spam.check_if_spamming(msg.guild_id.unwrap().0, msg.author.id.0);
+        let anti_spam_mutex = data.get::<AntiSpam>().unwrap();
+        let mut anti_spam = anti_spam_mutex.lock().unwrap();
+        let db_mutex = data.get::<Database>().unwrap();
+        let db = db_mutex.lock().unwrap();
+        match db.get_guild_configuration(msg.guild_id.unwrap().0) {
+            Ok((a, b, _, _)) => {
+                alert_only = a;
+                alert_channel_id = b;
+                ()
+            }
+            Err(e) => {
+                eprintln!("[{}] Failed to retrieve guild configuration: {}", msg.guild_id.unwrap().0, e.to_string());
+                ()
+            }
+        }
+        is_spamming = anti_spam.check_if_spamming(msg.guild_id.unwrap().0, msg.author.id.0, msg.channel_id.0, msg.id.0);
+        if is_spamming {
+            log(&ctx, &msg, format!("User {} may be spamming (NO ACTION TAKEN): {}", msg.author.tag(), msg.content));
+            if let Some(channel_and_message_ids) = anti_spam.get_recent_message_ids(msg.guild_id.unwrap().0, msg.author.id.0) {
+                messages_to_delete = Some(channel_and_message_ids.to_vec());
+            }
+            anti_spam.delete_recent_message_ids(msg.guild_id.unwrap().0, msg.author.id.0);
+        }
     }
     if is_spamming {
-        log(&ctx, &msg, format!("User {} may be spamming (NO ACTION TAKEN): {}", msg.author.tag(), msg.content));
+        if alert_only {
+            if alert_channel_id != 0 {
+                let _ = ChannelId(alert_channel_id)
+                    .send_message(&ctx, |m| {
+                        m.add_embed(|e| {
+                            e.description(format!("<@{0}> is currently spamming, but their messages will not be deleted due to `alert_only` being set to `true`", msg.author.id.0,))
+                        })
+                    })
+                    .await;
+            }
+        } else {
+            if let Some(messages) = messages_to_delete {
+                let mut messages_by_channel: HashMap<u64, Vec<MessageId>> = HashMap::new();
+                // split messages by channel so we can bulk delete them
+                for message_to_delete in messages {
+                    if messages_by_channel.contains_key(&message_to_delete.channel_id) {
+                        if let Some(messages_in_channel) = messages_by_channel.get_mut(&message_to_delete.channel_id) {
+                            messages_in_channel.push(MessageId(message_to_delete.message_id));
+                        }
+                    } else {
+                        messages_by_channel.insert(message_to_delete.channel_id, vec![MessageId(message_to_delete.message_id)]);
+                    }
+                }
+                for (channel_id, message_ids) in messages_by_channel.into_iter() {
+                    println!("{} {}", channel_id, message_ids.to_vec().into_iter().map(|i| i.to_string()).collect::<String>());
+                    match ChannelId(channel_id).delete_messages(&ctx, message_ids).await {
+                        Ok(_) => (),
+                        Err(e) => eprintln!("{}", e.to_string()),
+                    }
+                }
+            }
+            if alert_channel_id != 0 {
+                let _ = ChannelId(alert_channel_id)
+                    .send_message(&ctx, |m| m.add_embed(|e| e.description(format!("<@{0}> was spamming, so their messages were automatically deleted", msg.author.id.0,))))
+                    .await;
+            }
+        }
+        return;
     }
     // Ignore short messages, unlikely to be noteworthy
     if msg.content.len() < 15 {
@@ -26,8 +87,6 @@ pub async fn message(ctx: Context, msg: Message) {
     }
     let message_content = msg.content.to_lowercase();
     let contains_forbidden_word: bool;
-    let mut alert_only: bool = false;
-    let mut alert_channel_id: u64 = 0;
     {
         let data = ctx.data.read().await;
         let mutex = data.get::<Database>().unwrap();
@@ -39,19 +98,6 @@ pub async fn message(ctx: Context, msg: Message) {
                 false
             }
         };
-        if contains_forbidden_word {
-            match db.get_guild_configuration(msg.guild_id.unwrap().0) {
-                Ok((a, b, _, _)) => {
-                    alert_only = a;
-                    alert_channel_id = b;
-                    ()
-                }
-                Err(e) => {
-                    eprintln!("[{}] Failed to retrieve guild configuration: {}", msg.guild_id.unwrap().0, e.to_string());
-                    ()
-                }
-            }
-        }
     }
     if contains_forbidden_word {
         let bot_user = ctx.cache.current_user().await;

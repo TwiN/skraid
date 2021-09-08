@@ -18,6 +18,7 @@ use serenity::framework::standard::DispatchError::{NotEnoughArguments, Ratelimit
 use serenity::framework::standard::{help_commands, CommandError, DispatchError};
 use serenity::framework::standard::{Args, CommandGroup, CommandOptions, CommandResult, HelpOptions, Reason};
 use serenity::framework::StandardFramework;
+use serenity::http::Http;
 use serenity::model::channel::Message;
 use serenity::model::channel::ReactionType::Unicode;
 use serenity::model::id::UserId;
@@ -131,9 +132,9 @@ async fn on_dispatch_error(ctx: &Context, msg: &Message, error: DispatchError) {
     }
 }
 
-async fn create_framework(prefix: String) -> StandardFramework {
+async fn create_framework(prefix: String, bot_id: UserId) -> StandardFramework {
     return StandardFramework::new()
-        .configure(|c| c.prefix(prefix.as_str()).case_insensitivity(true))
+        .configure(|c| c.prefix(prefix.as_str()).on_mention(Some(bot_id)).case_insensitivity(true))
         .on_dispatch_error(on_dispatch_error)
         .before(before_hook)
         .after(after_hook)
@@ -154,8 +155,9 @@ async fn create_framework(prefix: String) -> StandardFramework {
 #[tokio::main]
 async fn main() {
     let config = load_configuration_map();
+    let bot_user = Http::new_with_token(&config.get(config::KEY_TOKEN).unwrap().to_string().as_str()).get_current_user().await;
     let mut client = Client::builder(config.get(config::KEY_TOKEN).unwrap().to_string())
-        .framework(create_framework(config.get(config::KEY_PREFIX).unwrap().to_string()).await)
+        .framework(create_framework(config.get(config::KEY_PREFIX).unwrap().to_string(), bot_user.unwrap().id).await)
         .event_handler(Handler)
         .intents(
             GatewayIntents::GUILDS

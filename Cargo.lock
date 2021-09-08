@@ -730,9 +730,9 @@ dependencies = [
 
 [[package]]
 name = "r8limit"
-version = "0.1.0"
+version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4bedaa5cb9d3267fbd06a051302bc99a63dd014b5b3d2d004f0c6d094ffd026c"
+checksum = "50cc60141c53dc95f552283dcacc50304cbe160591bba1e4696b9e77c0010d55"
 
 [[package]]
 name = "rand"
