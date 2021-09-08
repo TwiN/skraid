@@ -60,9 +60,9 @@ All commands must be prefixed by the `COMMAND_PREFIX`, or `s!` by default.
 |:------------------------- |:----------- |
 | get_guild_config          | Retrieve the current guild configuration.
 | set_alert_channel         | Configure an alert channel by passing the desired channel id as argument
-| set_alert_only            | Configure Skraid's mode. By default, this is set to true. If set to false, if a user in the blocklist joins the server, they will be automatically banned. Likewise, if a user posts a message containing a forbidden word (e.g. a link known to be related to phishing), said message will be deleted. In any case, alerts will be sent as long as the alert channel is configured.
-| set_ban_new_user_on_join  | Configure whether Skraid should automatically ban users that were created less than two hours ago when they join the guild.
-| set_ban_user_on_join      | Configure whether Skraid should automatically ban every user that joins the guild. Used for when your guild is actively being raided.
+| set_alert_only            | Configure Skraid's mode. By default, this is set to true.<br />See [What happens if alert_only is set to false?](#what-happens-if-alert_only-is-set-to-false)
+| set_ban_new_user_on_join  | Configure whether Skraid should automatically ban users that were created less<br />than two hours ago when they join the guild.
+| set_ban_user_on_join      | Configure whether Skraid should automatically ban every user that joins the guild.<br />Used for when your guild is actively being raided.
 
 **NOTE**: Setting `set_alert_only` to false will cause any user in the global blocklist to be banned as soon as they join the server. Furthermore, it will also cause the deletion of new messages containing one or more forbidden word (e.g. a link known to be related to phishing). In any case, alerts will always be sent as long as the alert channel is configured.
 
@@ -113,6 +113,13 @@ There are only two valid reasons for submitting a blocklist suggestion using `s!
 2. **scam**: A user that was sending messages in text channels with the purpose to scam other users (e.g. Nitro scam).
 
 No other reasons are valid. Skraid's only purpose is really to just fight scam and raids, not to moderate every behaviors of every user in your guild. This is because not every guild have the same rules; but the one thing that every guild has in common is that they don't want their members to fall for a scam or be disturbed by a raid.
+
+### What happens if alert_only is set to false?
+In all cases, alerts will be sent as long as the alert channel is configured, but setting `alert_only` to false will also have the following effect:
+- If a user in the blocklist joins the guild, they will be automatically banned.
+- If a user posts a message containing a forbidden word (e.g. a link known to be related to phishing), said message will be deleted.
+- If `ban_new_user_on_join` is set to `true`, users that were created 2 hours or earlier will be automatically banned when they join the guild.
+- If `ban_user_on_join` is set to `true`, all users joining the guild will be automatically banned. This is useful for when your guild is being actively raided.
 
 
 
