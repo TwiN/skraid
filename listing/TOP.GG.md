@@ -1,4 +1,4 @@
-**NOTE:** By default, Skraid is in alert-only mode. Until you configure an alert channel using `s!set_alert_channel` or you disable alert-only mode using `s!set_alert_only false`, the bot will not serve any purpose.
+**NOTE:** By default, Skraid is in alert-only mode. Until you configure an alert channel using `s!SetAlertChannel` or you disable alert-only mode using `s!SetAlertOnly false`, the bot will not serve any purpose.
 
 **Please read "Important notes" and "Getting started" before inviting the bot to your server.**
 
