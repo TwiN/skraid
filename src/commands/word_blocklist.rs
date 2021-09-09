@@ -60,8 +60,8 @@ async fn word_blocklist_remove(ctx: &Context, msg: &Message, args: Args) -> Comm
 }
 
 #[command("list")]
-#[aliases(get)]
 #[description("Retrieves a list of all blocklisted words")]
+#[aliases(get)]
 async fn word_blocklist_list(ctx: &Context, msg: &Message) -> CommandResult {
     let mut forbidden_words: Vec<String> = vec![];
     {

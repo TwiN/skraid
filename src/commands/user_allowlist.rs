@@ -110,6 +110,7 @@ async fn user_allowlist_search(ctx: &Context, msg: &Message, args: Args) -> Comm
 
 #[command("list")]
 #[description("Retrieves a list of all allowlisted user ids for this guild")]
+#[aliases(get)]
 #[bucket(staff)]
 async fn user_allowlist_list(ctx: &Context, msg: &Message) -> CommandResult {
     let mut allowlisted_users: Vec<u64> = vec![];
