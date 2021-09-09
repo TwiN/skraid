@@ -9,6 +9,7 @@ use serenity::{
 
 #[command("SetAlertChannel")]
 #[description("Set the channel where the alerts will be sent")]
+#[aliases(setalertchannel)]
 #[usage("CHANNEL_ID")]
 #[example("000000000000000000")]
 #[num_args(1)]
@@ -39,6 +40,7 @@ async fn set_alert_channel(ctx: &Context, msg: &Message, args: Args) -> CommandR
 
 #[command("SetAlertOnly")]
 #[description("Configure whether Skraid should only send alert without taking any action.")]
+#[aliases(setalertonly)]
 #[usage("BOOLEAN")]
 #[example("true")]
 #[num_args(1)]
@@ -68,6 +70,7 @@ async fn set_alert_only(ctx: &Context, msg: &Message, args: Args) -> CommandResu
 
 #[command("SetBanNewUserOnJoin")]
 #[description("Configure whether Skraid should automatically ban users that were created less than two hours ago when they join the server.")]
+#[aliases(setbannewuseronjoin)]
 #[usage("BOOLEAN")]
 #[example("true")]
 #[num_args(1)]
@@ -97,6 +100,7 @@ async fn set_ban_new_user_on_join(ctx: &Context, msg: &Message, args: Args) -> C
 
 #[command("SetBanUserOnJoin")]
 #[description("Configure whether Skraid should automatically ban every user that joins the server. Used for when your server is actively being raided.")]
+#[aliases(setbanuseronjoin)]
 #[usage("BOOLEAN")]
 #[example("true")]
 #[num_args(1)]

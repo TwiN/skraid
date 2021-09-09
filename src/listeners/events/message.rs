@@ -35,7 +35,7 @@ pub async fn message(ctx: Context, msg: Message) {
             let mut anti_spam = anti_spam_mutex.lock().unwrap();
             is_spamming = anti_spam.check_if_spamming(msg.guild_id.unwrap().0, msg.author.id.0, msg.channel_id.0, msg.id.0);
             if is_spamming {
-                log(&ctx, &msg, format!("User {} may be spamming (NO ACTION TAKEN): {}", msg.author.tag(), msg.content));
+                log(&ctx, &msg, format!("User {} may be spamming: {}", msg.author.tag(), msg.content));
                 if let Some(channel_and_message_ids) = anti_spam.get_recent_message_ids(msg.guild_id.unwrap().0, msg.author.id.0) {
                     messages_to_delete = Some(channel_and_message_ids.to_vec());
                 }

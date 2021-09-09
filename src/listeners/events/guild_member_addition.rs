@@ -11,7 +11,7 @@ pub async fn guild_member_addition(ctx: Context, guild_id: GuildId, new_member: 
     }
     let number_of_hours_since_account_creation = (Utc::now().timestamp() - new_member.user.created_at().timestamp()) / 3600;
     let was_account_created_recently = number_of_hours_since_account_creation <= 2;
-    println!("[{}] {} ({}) joined {}; new?={}", guild_id.0, new_member.user.tag(), new_member.user.id.0, guild_id.name(&ctx).await.unwrap(), was_account_created_recently);
+    println!("[{}] {} ({}) joined {}; new_account={}", guild_id.0, new_member.user.tag(), new_member.user.id.0, guild_id.name(&ctx).await.unwrap(), was_account_created_recently);
     let is_blocklisted: bool;
     let mut alert_only: bool = true;
     let mut alert_channel_id: u64 = 0;

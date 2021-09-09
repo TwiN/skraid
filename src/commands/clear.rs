@@ -9,11 +9,10 @@ const MAXIMUM_NUMBER_OF_MESSAGES: u64 = 100;
 
 #[command("Clear")]
 #[description("Clear N messages from the current channel")]
+#[aliases(clear, clean, nuke)]
 #[usage("NUMBER_OF_MESSAGES_TO_DELETE")]
 #[example("20")]
-#[aliases(clear, clean, nuke)]
-#[min_args(1)]
-#[max_args(1)]
+#[num_args(1)]
 #[bucket(staff)]
 async fn clear(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
     let number_of_messages = match args.rest().parse::<u64>() {
