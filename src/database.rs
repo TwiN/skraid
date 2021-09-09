@@ -27,6 +27,9 @@ impl Database {
     }
 
     pub fn create_schema(&self) {
+        let _ = self.connection.execute("ALTER TABLE blocklist RENAME TO user_blocklist;", []);
+        let _ = self.connection.execute("ALTER TABLE allowlist RENAME TO user_allowlist;", []);
+        let _ = self.connection.execute("ALTER TABLE forbidden_words RENAME TO word_blocklist;", []);
         match self.connection.execute(
             "CREATE TABLE IF NOT EXISTS user_blocklist (
                 user_id    UNSIGNED BIG INT PRIMARY KEY,
@@ -52,6 +55,10 @@ impl Database {
             Ok(_) => (),
             Err(error) => panic!("{}", error),
         }
+        // TODO: remove this once the migration is completed.
+        let _ = self.connection.execute("ALTER TABLE guilds ADD ban_new_user_on_join INTEGER DEFAULT FALSE", []);
+        // TODO: remove this once the migration is completed.
+        let _ = self.connection.execute("ALTER TABLE guilds ADD ban_user_on_join INTEGER DEFAULT FALSE", []);
         match self.connection.execute(
             "CREATE TABLE IF NOT EXISTS user_allowlist (
                 id         INTEGER PRIMARY KEY,
@@ -64,6 +71,7 @@ impl Database {
             Ok(_) => (),
             Err(error) => panic!("{}", error),
         }
+
         match self.connection.execute(
             "CREATE TABLE IF NOT EXISTS word_blocklist (
                 id    INTEGER PRIMARY KEY,
@@ -74,6 +82,7 @@ impl Database {
             Ok(_) => (),
             Err(error) => panic!("{}", error),
         }
+
         println!("Successfully initiated schema");
         let _ = self.insert_in_word_blocklist("discordgift.ru.com".to_string());
         let _ = self.insert_in_word_blocklist("discord-nitro.link".to_string());
