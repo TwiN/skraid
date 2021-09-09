@@ -9,7 +9,7 @@ This is, however, easier said than done.
 
 This bot is built with several fail-safe mechanisms to prevent abuse.
 
-One of these fail-safe mechanisms is the fact that inviting the bot to a guild does not allow you to modify the global ban list. The staff members of each guild (i.e. users with BAN_MEMBERS permissions) may suggest the addition of users to the global ban list by using `s!suggest UserBlocklist USER_ID`, but the decision is ultimately up to several factors which will not be disclosed to prevent malicious actors from attempting to circumvent the system. Do not be too worried, though, as one of the measures put in place requires manual action from the maintainer of the bot.
+One of these fail-safe mechanisms is the fact that inviting the bot to a guild does not allow you to modify the global user blocklist. The staff members of each guild (i.e. users with BAN_MEMBERS permissions) may suggest the addition of users to the global user blocklist by using `s!suggest UserBlocklist USER_ID`, but the decision is ultimately up to several factors which will not be disclosed to prevent malicious actors from attempting to circumvent the system. Do not be too worried, though, as one of the measures put in place requires manual action from the maintainer of the bot.
 
 ## Features
 - Send an alert if a user in the global blocklist has joined the server (or ban said user, if configured to do so). Does not affect users that were already in the server.
@@ -68,7 +68,7 @@ All commands must be prefixed by the `COMMAND_PREFIX`, or `s!` by default.
 
 
 ### User Allowlist
-While each individual guild may only "suggest" the addition of user ids to the global ban list, you have full control over your own server: If you believe that a user has been wrongly added to the global blocklist, you may add them to your guild's allowlist, or later remove them if you changed your mind.
+While each individual guild may only "suggest" the addition of user ids to the global user blocklist, you have full control over your own server: If you believe that a user has been wrongly added to the global blocklist, you may add them to your guild's allowlist, or later remove them if you changed your mind.
 
 Each guild has their own separate allowlist which, in the case that they chose to enable Skraid's automatic banning capabilities, will override the global blocklist.
 
