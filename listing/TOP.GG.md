@@ -9,7 +9,7 @@ This is, however, easier said than done.
 
 This bot is built with several fail-safe mechanisms to prevent abuse.
 
-One of these fail-safe mechanisms is the fact that inviting the bot to a guild does not allow you to modify the global ban list. The staff members of each guild (i.e. users with BAN_MEMBERS permissions) may suggest the addition of users to the global ban list by using `s!suggest_blocklist USER_ID`, but the decision is ultimately up to several factors which will not be disclosed to prevent malicious actors from attempting to circumvent the system. Do not be too worried, though, as one of the measures put in place requires manual action from the maintainer of the bot.
+One of these fail-safe mechanisms is the fact that inviting the bot to a guild does not allow you to modify the global ban list. The staff members of each guild (i.e. users with BAN_MEMBERS permissions) may suggest the addition of users to the global ban list by using `s!suggest UserBlocklist USER_ID`, but the decision is ultimately up to several factors which will not be disclosed to prevent malicious actors from attempting to circumvent the system. Do not be too worried, though, as one of the measures put in place requires manual action from the maintainer of the bot.
 
 ## Features
 - Send an alert if a user in the global blocklist has joined the server (or ban said user, if configured to do so). Does not affect users that were already in the server.
@@ -64,7 +64,7 @@ All commands must be prefixed by the `COMMAND_PREFIX`, or `s!` by default.
 | SetBanNewUserOnJoin       | Configure whether Skraid should automatically ban users that were created less than two hours ago when they join the guild.
 | SetBanNewUserOnJoin          | Configure whether Skraid should automatically ban every user that joins the guild. Used for when your guild is actively being raided.
 
-**NOTE**: Setting `set_alert_only` to false will cause any user in the global blocklist to be banned as soon as they join the server. Furthermore, it will also cause the deletion of new messages containing one or more forbidden word (e.g. a link known to be related to phishing). In any case, alerts will always be sent as long as the alert channel is configured.
+**NOTE**: Setting `SetAlertOnly` to false will cause any user in the global user blocklist to be banned as soon as they join the server. Furthermore, it will also cause the deletion of new messages containing one or more forbidden word (e.g. a link known to be related to phishing). In any case, alerts will always be sent as long as the alert channel is configured.
 
 
 ### User Allowlist
