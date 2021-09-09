@@ -124,6 +124,6 @@ In all cases, alerts will be sent as long as the alert channel is configured, bu
 
 
 ## Glossary
-- **blocklist**: A global list maintained by the bot's maintainer.
-- **allowlist**: A per-guild list of user ids. Used only in case Skraid has flagged or banned a user whom you believe is a legitimate user.
-- **forbidden words**: A list of words that, if detected, will send an alert to the configured alert channel and, optionally, delete the message. These are mostly links of known scam websites.
+- **user blocklist**: A global list maintained by the bot's maintainer.
+- **user allowlist**: A per-guild list of user ids. Used only in case Skraid has flagged or banned a user whom you believe is a legitimate user.
+- **word blocklist**: A list of words that, if detected, will send an alert to the configured alert channel and, optionally, delete the message. These are mostly links of known scam websites.
