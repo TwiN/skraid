@@ -105,6 +105,6 @@ Suggestions are the mean by which guild staff members may communicate with the m
 
 
 ## Glossary
-- **blocklist**: A global ban list maintained by the bot's maintainer.
-- **allowlist**: A per-guild list of user ids. Used only in case Skraid has banned a user whom you believe is a legitimate user. 
-- **forbidden words**: A list of words that, if detected, will alert or act on the user who sent the message.
+- **user blocklist**: A global list maintained by the bot's maintainer.
+- **user allowlist**: A per-guild list of user ids. Used only in case Skraid has flagged or banned a user whom you believe is a legitimate user.
+- **word blocklist**: A list of words that, if detected, will send an alert to the configured alert channel and, optionally, delete the message. These are mostly links of known scam websites.
