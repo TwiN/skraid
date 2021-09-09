@@ -7,11 +7,11 @@ use serenity::{
 const MINIMUM_NUMBER_OF_MESSAGES: u64 = 2;
 const MAXIMUM_NUMBER_OF_MESSAGES: u64 = 100;
 
-#[command]
+#[command("Clear")]
 #[description("Clear N messages from the current channel")]
 #[usage("NUMBER_OF_MESSAGES_TO_DELETE")]
 #[example("20")]
-#[aliases(clean, nuke)]
+#[aliases(clear, clean, nuke)]
 #[min_args(1)]
 #[max_args(1)]
 #[bucket(staff)]

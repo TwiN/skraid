@@ -4,8 +4,9 @@ use serenity::{
     model::channel::Message,
 };
 
-#[command]
+#[command("Status")]
 #[description("Check the status of the bot")]
+#[aliases(status)]
 #[bucket(staff)]
 async fn status(ctx: &Context, msg: &Message) -> CommandResult {
     msg.reply(ctx, "I'm fine.").await?;

@@ -28,7 +28,7 @@ impl Database {
 
     pub fn create_schema(&self) {
         match self.connection.execute(
-            "CREATE TABLE IF NOT EXISTS blocklist (
+            "CREATE TABLE IF NOT EXISTS user_blocklist (
                 user_id    UNSIGNED BIG INT PRIMARY KEY,
                 reason     TEXT,
                 timestamp  DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -38,6 +38,7 @@ impl Database {
             Ok(_) => (),
             Err(error) => panic!("{}", error),
         }
+        let _ = self.connection.execute("ALTER TABLE blocklist RENAME TO user_blocklist;", []);
         match self.connection.execute(
             "CREATE TABLE IF NOT EXISTS guilds (
                 guild_id                 UNSIGNED BIG INT PRIMARY KEY,
@@ -57,7 +58,7 @@ impl Database {
         // TODO: remove this once the migration is completed.
         let _ = self.connection.execute("ALTER TABLE guilds ADD ban_user_on_join INTEGER DEFAULT FALSE", []);
         match self.connection.execute(
-            "CREATE TABLE IF NOT EXISTS allowlist (
+            "CREATE TABLE IF NOT EXISTS user_allowlist (
                 id         INTEGER PRIMARY KEY,
                 guild_id   UNSIGNED BIG INT NOT NULL, -- Decided to not make this a reference to the guild table for now
                 user_id    UNSIGNED BIG INT NOT NULL,
@@ -68,8 +69,9 @@ impl Database {
             Ok(_) => (),
             Err(error) => panic!("{}", error),
         }
+        let _ = self.connection.execute("ALTER TABLE allowlist RENAME TO user_allowlist;", []);
         match self.connection.execute(
-            "CREATE TABLE IF NOT EXISTS forbidden_words (
+            "CREATE TABLE IF NOT EXISTS word_blocklist (
                 id    INTEGER PRIMARY KEY,
                 word  TEXT NOT NULL UNIQUE
             )",
@@ -78,37 +80,38 @@ impl Database {
             Ok(_) => (),
             Err(error) => panic!("{}", error),
         }
+        let _ = self.connection.execute("ALTER TABLE forbidden_words RENAME TO word_blocklist;", []);
         println!("Successfully initiated schema");
-        let _ = self.insert_in_forbidden_words("discordgift.ru.com".to_string());
-        let _ = self.insert_in_forbidden_words("discord-nitro.link".to_string());
-        let _ = self.insert_in_forbidden_words("freenitros.ru".to_string());
-        let _ = self.insert_in_forbidden_words("gifts-discord.xyz".to_string());
-        let _ = self.insert_in_forbidden_words("discorcl.link".to_string());
-        let _ = self.insert_in_forbidden_words("stearncommunity.link".to_string());
-        let _ = self.insert_in_forbidden_words("steamcomnumnity.com".to_string());
-        let _ = self.insert_in_forbidden_words("steamcomnumilty.com".to_string());
-        let _ = self.insert_in_forbidden_words("steamcomnumily.com".to_string());
-        let _ = self.insert_in_forbidden_words("steamcommutyniu.com".to_string());
-        let _ = self.insert_in_forbidden_words("steancomunnity.ru".to_string());
-        let _ = self.insert_in_forbidden_words("streancommunuty.ru".to_string());
+        let _ = self.insert_in_word_blocklist("discordgift.ru.com".to_string());
+        let _ = self.insert_in_word_blocklist("discord-nitro.link".to_string());
+        let _ = self.insert_in_word_blocklist("freenitros.ru".to_string());
+        let _ = self.insert_in_word_blocklist("gifts-discord.xyz".to_string());
+        let _ = self.insert_in_word_blocklist("discorcl.link".to_string());
+        let _ = self.insert_in_word_blocklist("stearncommunity.link".to_string());
+        let _ = self.insert_in_word_blocklist("steamcomnumnity.com".to_string());
+        let _ = self.insert_in_word_blocklist("steamcomnumilty.com".to_string());
+        let _ = self.insert_in_word_blocklist("steamcomnumily.com".to_string());
+        let _ = self.insert_in_word_blocklist("steamcommutyniu.com".to_string());
+        let _ = self.insert_in_word_blocklist("steancomunnity.ru".to_string());
+        let _ = self.insert_in_word_blocklist("streancommunuty.ru".to_string());
     }
 
-    pub fn insert_in_blocklist(&self, id: u64, reason: String) -> Result<bool> {
-        return match self.connection.execute("INSERT INTO blocklist (user_id, reason) VALUES (?1, ?2)", params![id, reason]) {
+    pub fn insert_in_user_blocklist(&self, id: u64, reason: String) -> Result<bool> {
+        return match self.connection.execute("INSERT INTO user_blocklist (user_id, reason) VALUES (?1, ?2)", params![id, reason]) {
             Ok(_) => Ok(true),
             Err(error) => Err(error),
         };
     }
 
-    pub fn remove_from_blocklist(&self, id: u64) -> Result<bool> {
-        return match self.connection.execute("DELETE FROM blocklist WHERE user_id = ?1", params![id]) {
+    pub fn remove_from_user_blocklist(&self, id: u64) -> Result<bool> {
+        return match self.connection.execute("DELETE FROM user_blocklist WHERE user_id = ?1", params![id]) {
             Ok(_) => Ok(true),
             Err(error) => Err(error),
         };
     }
 
-    pub fn is_blocklisted(&self, id: u64) -> Result<bool> {
-        let mut statement = self.connection.prepare("SELECT user_id FROM blocklist WHERE user_id = ? LIMIT 1")?;
+    pub fn is_in_user_blocklist(&self, id: u64) -> Result<bool> {
+        let mut statement = self.connection.prepare("SELECT user_id FROM user_blocklist WHERE user_id = ? LIMIT 1")?;
         let mut rows = statement.query([id])?;
         while let Some(_row) = rows.next()? {
             return Ok(true);
@@ -117,21 +120,21 @@ impl Database {
     }
 
     pub fn insert_in_allowlist(&self, guild_id: u64, user_id: u64) -> Result<bool> {
-        return match self.connection.execute("INSERT INTO allowlist (guild_id, user_id) VALUES (?1, ?2)", params![guild_id, user_id]) {
+        return match self.connection.execute("INSERT INTO user_allowlist (guild_id, user_id) VALUES (?1, ?2)", params![guild_id, user_id]) {
             Ok(_) => Ok(true),
             Err(error) => Err(error),
         };
     }
 
     pub fn remove_from_allowlist(&self, guild_id: u64, user_id: u64) -> Result<bool> {
-        return match self.connection.execute("DELETE FROM allowlist WHERE guild_id = ?1 AND user_id = ?2", params![guild_id, user_id]) {
+        return match self.connection.execute("DELETE FROM user_allowlist WHERE guild_id = ?1 AND user_id = ?2", params![guild_id, user_id]) {
             Ok(_) => Ok(true),
             Err(error) => Err(error),
         };
     }
 
     pub fn is_allowlisted(&self, guild_id: u64, user_id: u64) -> Result<bool> {
-        let mut statement = self.connection.prepare("SELECT user_id FROM allowlist WHERE guild_id = ?1 AND user_id = ?2 LIMIT 1")?;
+        let mut statement = self.connection.prepare("SELECT user_id FROM user_allowlist WHERE guild_id = ?1 AND user_id = ?2 LIMIT 1")?;
         let mut rows = statement.query([guild_id, user_id])?;
         while let Some(_row) = rows.next()? {
             return Ok(true);
@@ -140,7 +143,7 @@ impl Database {
     }
 
     pub fn count_allowlisted_users_in_guild(&self, guild_id: u64) -> Result<u64> {
-        let mut statement = self.connection.prepare("SELECT COUNT(1) FROM allowlist WHERE guild_id = ?1")?;
+        let mut statement = self.connection.prepare("SELECT COUNT(1) FROM user_allowlist WHERE guild_id = ?1")?;
         let mut rows = statement.query([guild_id])?;
         let mut count: u64 = 0;
         while let Some(row) = rows.next()? {
@@ -149,8 +152,8 @@ impl Database {
         return Ok(count);
     }
 
-    pub fn get_allowlisted_users_in_guild(&self, guild_id: u64) -> Result<Vec<u64>> {
-        let mut statement = self.connection.prepare("SELECT user_id FROM allowlist WHERE guild_id = ?1")?;
+    pub fn get_user_ids_in_user_allowlist(&self, guild_id: u64) -> Result<Vec<u64>> {
+        let mut statement = self.connection.prepare("SELECT user_id FROM user_allowlist WHERE guild_id = ?1")?;
         let mut rows = statement.query([guild_id])?;
         let mut user_ids: Vec<u64> = Vec::new();
         while let Some(row) = rows.next()? {
@@ -159,22 +162,22 @@ impl Database {
         return Ok(user_ids);
     }
 
-    pub fn insert_in_forbidden_words(&self, word: String) -> Result<bool> {
-        return match self.connection.execute("INSERT INTO forbidden_words (word) VALUES (?1)", params![word]) {
+    pub fn insert_in_word_blocklist(&self, word: String) -> Result<bool> {
+        return match self.connection.execute("INSERT INTO word_blocklist (word) VALUES (?1)", params![word]) {
             Ok(_) => Ok(true),
             Err(error) => Err(error),
         };
     }
 
-    pub fn remove_from_forbidden_words(&self, word: String) -> Result<bool> {
-        return match self.connection.execute("DELETE FROM forbidden_words WHERE word = ?1", params![word]) {
+    pub fn remove_from_word_blocklist(&self, word: String) -> Result<bool> {
+        return match self.connection.execute("DELETE FROM word_blocklist WHERE word = ?1", params![word]) {
             Ok(_) => Ok(true),
             Err(error) => Err(error),
         };
     }
 
-    pub fn contains_forbidden_word(&self, message: String) -> Result<bool> {
-        let mut statement = self.connection.prepare("SELECT word FROM forbidden_words WHERE ?1 LIKE '%'||word||'%' LIMIT 1")?;
+    pub fn contains_word_in_word_blocklist(&self, message: String) -> Result<bool> {
+        let mut statement = self.connection.prepare("SELECT word FROM word_blocklist WHERE ?1 LIKE '%'||word||'%' LIMIT 1")?;
         let mut rows = statement.query([message])?;
         while let Some(_row) = rows.next()? {
             return Ok(true);
@@ -182,8 +185,8 @@ impl Database {
         return Ok(false);
     }
 
-    pub fn get_forbidden_words(&self) -> Result<Vec<String>> {
-        let mut statement = self.connection.prepare("SELECT word FROM forbidden_words ORDER BY word")?;
+    pub fn get_words_in_word_blocklist(&self) -> Result<Vec<String>> {
+        let mut statement = self.connection.prepare("SELECT word FROM word_blocklist ORDER BY word")?;
         let mut rows = statement.query([])?;
         let mut forbidden_words: Vec<String> = Vec::new();
         while let Some(row) = rows.next()? {

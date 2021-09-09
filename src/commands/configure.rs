@@ -7,7 +7,7 @@ use serenity::{
     framework::standard::{macros::command, Args, CommandError, CommandResult},
 };
 
-#[command]
+#[command("SetAlertChannel")]
 #[description("Set the channel where the alerts will be sent")]
 #[usage("CHANNEL_ID")]
 #[example("000000000000000000")]
@@ -37,7 +37,7 @@ async fn set_alert_channel(ctx: &Context, msg: &Message, args: Args) -> CommandR
     Ok(())
 }
 
-#[command]
+#[command("SetAlertOnly")]
 #[description("Configure whether Skraid should only send alert without taking any action.")]
 #[usage("BOOLEAN")]
 #[example("true")]
@@ -66,7 +66,7 @@ async fn set_alert_only(ctx: &Context, msg: &Message, args: Args) -> CommandResu
     Ok(())
 }
 
-#[command]
+#[command("SetBanNewUserOnJoin")]
 #[description("Configure whether Skraid should automatically ban users that were created less than two hours ago when they join the server.")]
 #[usage("BOOLEAN")]
 #[example("true")]
@@ -95,7 +95,7 @@ async fn set_ban_new_user_on_join(ctx: &Context, msg: &Message, args: Args) -> C
     Ok(())
 }
 
-#[command]
+#[command("SetBanUserOnJoin")]
 #[description("Configure whether Skraid should automatically ban every user that joins the server. Used for when your server is actively being raided.")]
 #[usage("BOOLEAN")]
 #[example("true")]
@@ -124,15 +124,16 @@ async fn set_ban_user_on_join(ctx: &Context, msg: &Message, args: Args) -> Comma
     Ok(())
 }
 
-#[command]
+#[command("GetGuildConfig")]
 #[description("Retrieve the current guild configuration.")]
+#[aliases(getguildconfig, config)]
 #[num_args(0)]
 #[bucket(staff)]
 async fn get_guild_config(ctx: &Context, msg: &Message) -> CommandResult {
-    let alert_only: bool;
-    let alert_channel_id: u64;
-    let ban_new_user_on_join: bool;
-    let ban_user_on_join: bool;
+    let mut alert_only: bool = false;
+    let mut alert_channel_id: u64 = 0;
+    let mut ban_new_user_on_join: bool = false;
+    let mut ban_user_on_join: bool = false;
     {
         let data = ctx.data.read().await;
         if let Some(mutex) = data.get::<Database>() {

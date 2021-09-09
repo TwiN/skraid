@@ -28,19 +28,25 @@ worried, though, as one of the measures put in place requires manual action from
 ## Getting started
 To invite the bot in the server: `https://discord.com/oauth2/authorize?client_id=<YOUR_BOT_CLIENT_ID>&scope=bot&permissions=11332`
 
-By default, Skraid will be on alert-only mode. This means that until you create a channel and configure Skraid to send
-alerts to that channel, it will not do anything.
+By default, Skraid will be on alert-only mode.
+
+This means that until you create a channel and configure Skraid to send alerts to that channel, it will not do anything.
 
 Once you've created the alert channel, make sure that Skraid has access to the channel and type the following:
 ```
-s!set_alert_channel <ALERT_CHANNEL_ID>
+s!SetAlertChannel <ALERT_CHANNEL_ID>
 ```
 Where `<ALERT_CHANNEL_ID>` is the channel ID of your alert channel (e.g. `860216911907298444`)
 
+If you wish to let Skraid ban members in the global ban list, you may disable alert-only mode by using the following command:
+```
+s!SetAlertOnly false
+```
+
 
 ## Features
-- Send an alert if a user in the global blocklist has joined the server (or ban said user, if configured to do so). Does not affect users that were already in the server.
-- Supports per-server list of "exceptions" (allowlist), in case a guild wishes to let a user in the global ban list (blocklist) join their server anyways. This only really applies if the bot is configured to ban instead of alert.
+- Send an alert if a user in the global user blocklist has joined the server (or ban said user, if configured to do so). Does not affect users that were already in the server.
+- Supports per-server list of "exceptions" (user allowlist), in case a guild wishes to let a user in the global user blocklist (blocklist) join their server anyways. This only really applies if the bot is configured to ban instead of alert.
 - Detect messages containing known phishing/scam links and send an alert, or delete said messages if configured to do so.
 - Configuration for setting up a channel for alerts, including replacing all actions by alerts sent to said channel.
 - Has some utility commands to manage raids
@@ -50,52 +56,52 @@ Where `<ALERT_CHANNEL_ID>` is the channel ID of your alert channel (e.g. `860216
 All commands must be prefixed by the `COMMAND_PREFIX`, or `s!` by default.
 
 ### Configuration
-| Command name              | Description |
+| Command                   | Description |
 |:------------------------- |:----------- |
-| get_guild_config          | Retrieve the current guild configuration.
-| set_alert_channel         | Configure an alert channel by passing the desired channel id as argument
-| set_alert_only            | Configure Skraid's mode. By default, this is set to true. If set to false, if a user in the blocklist joins the server, they will be automatically banned. Likewise, if a user posts a message containing a forbidden word (e.g. a link known to be related to phishing), said message will be deleted. In any case, alerts will be sent as long as the alert channel is configured.
-| set_ban_new_user_on_join  | Configure whether Skraid should automatically ban users that were created less than two hours ago when they join the guild.
-| set_ban_user_on_join      | Configure whether Skraid should automatically ban every user that joins the guild. Used for when your guild is actively being raided.
+| GetGuildConfig            | Retrieve the current guild configuration.
+| SetAlertChannel           | Configure an alert channel by passing the desired channel id as argument
+| SetAlertOnly              | Configure Skraid's mode. By default, this is set to true. If set to false, if a user in the blocklist joins the server, they will be automatically banned. Likewise, if a user posts a message containing a forbidden word (e.g. a link known to be related to phishing), said message will be deleted. In any case, alerts will be sent as long as the alert channel is configured.
+| SetBanNewUserOnJoin       | Configure whether Skraid should automatically ban users that were created less than two hours ago when they join the guild.
+| SetBanNewUserOnJoin          | Configure whether Skraid should automatically ban every user that joins the guild. Used for when your guild is actively being raided.
 
-### Allowlist
+### User Allowlist
 Each guild has their own separate allowlist which, in the case that they chose to enable Skraid's automatic banning capabilities,
 can allow a user they believe was wrongly blocklisted to join the server. 
 
 If `alert_only` is set to `true` (by default, it is), there's no need to use the allowlist as the only thing you'd be 
 preventing is the creation of an alert.
 
-| Command name          | Description |
+| Command               | Description |
 |:--------------------- |:----------- |
-| allowlist             | Add user ID to the guild's list of exceptions
-| unallowlist           | Remove user ID from the guild's list of exception
-| is_allowlisted        | Check if a user ID is in the guild's list of exception
-| get_allowlisted_users | Retrieves a list of all allowlisted user ids for this guild
+| UserAllowList add     | Add user ID to the guild's user allowlist
+| UserAllowList remove  | Remove user ID from the guild's user allowlist
+| UserAllowList search  | Check if a user ID is in the guild's user allowlist
+| UserAllowList list    | Retrieve a list of all allowlisted user ids for this guild
 
 ### Suggestion
 Suggestions are the mean by which guild staff members may communicate with the maintainer.
 
-| Command name           | Description |
+| Command                | Description |
 |:---------------------- |:----------- |
-| suggest_forbidden_word | Suggest a word to add to the list of global forbidden words to the maintainer
-| suggest_blocklist      | Suggest the addition of a user ID to the global blocklist to the maintainer.
+| Suggest WordBlocklist  | Suggest a word to add to the list of global forbidden words to the maintainer
+| Suggest UserBlocklist  | Suggest the addition of a user ID to the global blocklist to the maintainer.
 
 ### Utilities
-| Command name | Description |
+| Command      | Description |
 |:------------ |:----------- |
-| clear        | Clear N messages from the current channel
-| status       | Check the status of the bot
+| Clear        | Clear N messages from the current channel
+| Status       | Check the status of the bot
 
 ### Maintainer
-| Command name             | Description |
+| Command                  | Description |
 |:------------------------ |:----------- |
-| blocklist                | Add user ID to the blocklist
-| unblocklist              | Remove user ID to the blocklist
-| is_blocklisted           | Check if user ID is in the blocklist
-| forbid_word              | Add word in the list of forbidden words
-| unforbid_word            | Remove word in the list of forbidden words
-| contains_forbidden_word  | Checks if a string contains a forbidden word
-| get_forbidden_words      | Retrieve a list of all forbidden words
+| UserBlocklist add        | Add user ID to the user blocklist
+| UserBlocklist remove     | Remove user ID to the user blocklist
+| UserBlocklist search     | Check if user ID is in the user blocklist
+| WordBlocklist add        | Add word in the word blocklist
+| WordBlocklist remove     | Remove word in the word blocklist
+| WordBlocklist search     | Checks if a string contains a word from the word blocklist
+| WordBlocklist list       | Retrieve a list of all words in word blocklist
 
 
 ## Glossary

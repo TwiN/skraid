@@ -36,13 +36,13 @@ This means that until you create a channel and configure Skraid to send alerts t
 
 Once you've created the alert channel, make sure that Skraid has access to the channel and type the following:
 ```
-s!set_alert_channel <ALERT_CHANNEL_ID>
+s!SetAlertChannel <ALERT_CHANNEL_ID>
 ```
 Where `<ALERT_CHANNEL_ID>` is the channel ID of your alert channel (e.g. `860216911907298444`)
 
 If you wish to let Skraid ban members in the global ban list, you may disable alert-only mode by using the following command:
 ```
-s!set_alert_only false
+s!SetAlertOnly false
 ```
 
 If the alert-only mode is set to false, you do not technically need an alert channel, but it is strongly recommended.
@@ -56,18 +56,18 @@ All commands must be prefixed by the `COMMAND_PREFIX`, or `s!` by default.
 
 
 ### Configuration
-| Command name              | Description |
+| Command                   | Description |
 |:------------------------- |:----------- |
-| get_guild_config          | Retrieve the current guild configuration.
-| set_alert_channel         | Configure an alert channel by passing the desired channel id as argument
-| set_alert_only            | Configure Skraid's mode. By default, this is set to true.<br />See [What happens if alert_only is set to false?](#what-happens-if-alert_only-is-set-to-false)
-| set_ban_new_user_on_join  | Configure whether Skraid should automatically ban users that were created less<br />than two hours ago when they join the guild.
-| set_ban_user_on_join      | Configure whether Skraid should automatically ban every user that joins the guild.<br />Used for when your guild is actively being raided.
+| GetGuildConfig            | Retrieve the current guild configuration.
+| SetAlertChannel           | Configure an alert channel by passing the desired channel id as argument
+| SetAlertOnly              | Configure Skraid's mode. By default, this is set to true. If set to false, if a user in the blocklist joins the server, they will be automatically banned. Likewise, if a user posts a message containing a forbidden word (e.g. a link known to be related to phishing), said message will be deleted. In any case, alerts will be sent as long as the alert channel is configured.
+| SetBanNewUserOnJoin       | Configure whether Skraid should automatically ban users that were created less than two hours ago when they join the guild.
+| SetBanNewUserOnJoin          | Configure whether Skraid should automatically ban every user that joins the guild. Used for when your guild is actively being raided.
 
 **NOTE**: Setting `set_alert_only` to false will cause any user in the global blocklist to be banned as soon as they join the server. Furthermore, it will also cause the deletion of new messages containing one or more forbidden word (e.g. a link known to be related to phishing). In any case, alerts will always be sent as long as the alert channel is configured.
 
 
-### Allowlist
+### User Allowlist
 While each individual guild may only "suggest" the addition of user ids to the global ban list, you have full control over your own server: If you believe that a user has been wrongly added to the global blocklist, you may add them to your guild's allowlist, or later remove them if you changed your mind.
 
 Each guild has their own separate allowlist which, in the case that they chose to enable Skraid's automatic banning capabilities, will override the global blocklist.
@@ -75,28 +75,28 @@ Each guild has their own separate allowlist which, in the case that they chose t
 If `alert_only` is set to `true` (by default, it is), there's no need to use the allowlist as the only thing you'd be
 preventing is the creation of an alert.
 
-| Command name          | Description |
+| Command               | Description |
 |:--------------------- |:----------- |
-| allowlist             | Add user ID to the guild's list of exceptions
-| unallowlist           | Remove user ID from the guild's list of exception
-| is_allowlisted        | Check if a user ID is in the guild's list of exception
-| get_allowlisted_users | Retrieves a list of all allowlisted user ids for this guild
+| UserAllowList add     | Add user ID to the guild's user allowlist
+| UserAllowList remove  | Remove user ID from the guild's user allowlist
+| UserAllowList search  | Check if a user ID is in the guild's user allowlist
+| UserAllowList list    | Retrieve a list of all allowlisted user ids for this guild
 
 
 ### Suggestion
 Suggestions are the mean by which guild staff members may communicate with the maintainer.
 
-| Command name           | Description |
+| Command                | Description |
 |:---------------------- |:----------- |
-| suggest_forbidden_word | Suggest a word to add to the list of global forbidden words to the maintainer
-| suggest_blocklist      | Suggest the addition of a user ID to the global blocklist to the maintainer.
+| Suggest WordBlocklist  | Suggest a word to add to the list of global forbidden words to the maintainer
+| Suggest UserBlocklist  | Suggest the addition of a user ID to the global blocklist to the maintainer.
 
 
 ### Utilities
-| Command name | Description |
+| Command      | Description |
 |:------------ |:----------- |
-| clear        | Clear N messages from the current channel
-| status       | Check the status of the bot
+| Clear        | Clear N messages from the current channel
+| Status       | Check the status of the bot
 
 
 
@@ -108,7 +108,7 @@ No. Not only is alert_only is set to true by default, the bot does not monitor t
 What you need to understand is that this bot will do good only if large communities are willing to give it a try, since they are the ones who are the most often targeted by raiders and scammers. As such, the efficiency of Skraid will increase over time.
 
 ### What kind of user id should I suggest for the global blocklist?
-There are only two valid reasons for submitting a blocklist suggestion using `s!suggest_blocklist`:
+There are only two valid reasons for submitting a blocklist suggestion using `s!suggest UserBlocklist <USER_ID> <REASON>`:
 1. **raid**: A user that was part of a raid
 2. **scam**: A user that was sending messages in text channels with the purpose to scam other users (e.g. Nitro scam).
 

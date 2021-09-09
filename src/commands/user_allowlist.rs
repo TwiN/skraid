@@ -9,13 +9,22 @@ use serenity::{
 
 const MAXIMUM_NUMBER_OF_ALLOWLISTED_USERS_PER_GUILD: u64 = 100;
 
-#[command]
-#[description("Add user ID to the guild's list of exception (allowlist).\nIn essence, this allows staff members of a guild to let users present in Skraid's global blocklist to join the guild.\n\nNot necessary if the guild is in alert-only mode, which is the default behavior.")]
+#[command("UserAllowlist")]
+#[description("Interact with the guild user allowlist.\nIn essence, this allows staff members of a guild to let users present in Skraid's global user blocklist to join the guild.\n\nNot necessary if the guild is in alert-only mode, which is the default behavior.")]
+#[aliases(userallowlist)]
+#[sub_commands(user_allowlist_add, user_allowlist_remove, user_allowlist_search, user_allowlist_list)]
+#[min_args(1)]
+async fn user_allowlist(_: &Context, _: &Message) -> CommandResult {
+    Ok(())
+}
+
+#[command("add")]
+#[description("Add user ID to the guild's list of exception (allowlist).")]
 #[usage("USER_ID")]
 #[example("000000000000000000")]
 #[num_args(1)]
 #[bucket(staff)]
-async fn allowlist(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
+async fn user_allowlist_add(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
     if msg.content.contains("<@&") {
         return Err(CommandError::from("roles cannot be added to the guild's allowlist"));
     }
@@ -46,13 +55,14 @@ async fn allowlist(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
     return Ok(());
 }
 
-#[command]
-#[description("Remove user ID from the guild's list of exception (allowlist)")]
+#[command("remove")]
+#[description("Remove user ID from the guild's allowlist")]
+#[aliases(delete)]
 #[usage("USER_ID")]
 #[example("000000000000000000")]
 #[num_args(1)]
 #[bucket(staff)]
-async fn unallowlist(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
+async fn user_allowlist_remove(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
     let argument: String = args.rest().chars().filter(|c| c.is_digit(10)).collect();
     let user_id = match argument.parse::<u64>() {
         Ok(n) => n,
@@ -71,19 +81,19 @@ async fn unallowlist(ctx: &Context, msg: &Message, args: Args) -> CommandResult 
     return Ok(());
 }
 
-#[command]
-#[description("Check if a user ID is in the guild's list of exception (allowlist)")]
+#[command("search")]
+#[description("Check if a user ID is in the guild's allowlist")]
 #[usage("USER_ID")]
 #[example("000000000000000000")]
 #[num_args(1)]
 #[bucket(staff)]
-async fn is_allowlisted(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
+async fn user_allowlist_search(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
     let argument: String = args.rest().chars().filter(|c| c.is_digit(10)).collect();
     let user_id = match argument.parse::<u64>() {
         Ok(n) => n,
         Err(e) => return Err(CommandError::from(e.to_string())),
     };
-    let is_allowlisted: bool;
+    let mut is_allowlisted: bool = false;
     {
         let data = ctx.data.read().await;
         if let Some(mutex) = data.get::<Database>() {
@@ -98,16 +108,16 @@ async fn is_allowlisted(ctx: &Context, msg: &Message, args: Args) -> CommandResu
     return Ok(());
 }
 
-#[command]
+#[command("list")]
 #[description("Retrieves a list of all allowlisted user ids for this guild")]
 #[bucket(staff)]
-async fn get_allowlisted_users(ctx: &Context, msg: &Message) -> CommandResult {
-    let allowlisted_users: Vec<u64>;
+async fn user_allowlist_list(ctx: &Context, msg: &Message) -> CommandResult {
+    let mut allowlisted_users: Vec<u64> = vec![];
     {
         let data = ctx.data.read().await;
         if let Some(mutex) = data.get::<Database>() {
             let db = mutex.lock().unwrap();
-            allowlisted_users = match db.get_allowlisted_users_in_guild(msg.guild_id.unwrap().0) {
+            allowlisted_users = match db.get_user_ids_in_user_allowlist(msg.guild_id.unwrap().0) {
                 Ok(users) => users,
                 Err(e) => return Err(CommandError::from(e.to_string())),
             };

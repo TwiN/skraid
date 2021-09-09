@@ -11,7 +11,7 @@ pub async fn message(ctx: Context, msg: Message) {
     if msg.author.bot || msg.is_private() {
         return;
     }
-    let is_spamming: bool;
+    let mut is_spamming: bool = false;
     let mut messages_to_delete: Option<Vec<ChannelAndMessageId>> = None;
     let mut alert_only: bool = true;
     let mut alert_channel_id: u64 = 0;
@@ -57,7 +57,7 @@ pub async fn message(ctx: Context, msg: Message) {
         let data = ctx.data.read().await;
         if let Some(mutex) = data.get::<Database>() {
             let db = mutex.lock().unwrap();
-            contains_forbidden_word = match db.contains_forbidden_word(message_content.to_string()) {
+            contains_forbidden_word = match db.contains_word_in_word_blocklist(message_content.to_string()) {
                 Ok(b) => b,
                 Err(e) => {
                     log(&ctx, &msg, format!("Failed to check if message contained forbidden word: {}", e.to_string()));

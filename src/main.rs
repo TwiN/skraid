@@ -3,12 +3,13 @@ use crate::config::{load_configuration_map, Config};
 use crate::database::Database;
 use crate::listeners::handlers::event_handler::Handler;
 use crate::utilities::logging::log;
-use commands::allowlist::*;
-use commands::blocklist::*;
 use commands::clear::*;
 use commands::configure::*;
-use commands::forbidden_words::*;
 use commands::status::*;
+use commands::suggest::*;
+use commands::user_allowlist::*;
+use commands::user_blocklist::*;
+use commands::word_blocklist::*;
 use serenity::client::bridge::gateway::GatewayIntents;
 use serenity::client::Context;
 use serenity::framework::standard::buckets::LimitedFor;
@@ -38,7 +39,7 @@ mod utilities;
 #[group]
 #[only_in(guilds)]
 #[required_permissions(BAN_MEMBERS)]
-#[commands(status, clear)]
+#[commands(user_allowlist, suggest, status, clear)]
 struct Utilities;
 
 #[group]
@@ -48,20 +49,8 @@ struct Utilities;
 struct Configuration;
 
 #[group]
-#[only_in(guilds)]
-#[required_permissions(BAN_MEMBERS)]
-#[commands(suggest_forbidden_word, suggest_blocklist)]
-struct Suggestion;
-
-#[group]
-#[only_in(guilds)]
-#[required_permissions(BAN_MEMBERS)]
-#[commands(allowlist, unallowlist, is_allowlisted, get_allowlisted_users)]
-struct Allowlist;
-
-#[group]
 #[checks(Maintainer)]
-#[commands(blocklist, unblocklist, is_blocklisted, forbid_word, unforbid_word, contains_forbidden_word, get_forbidden_words)]
+#[commands(user_blocklist, word_blocklist)]
 struct Maintainer;
 
 #[check]
@@ -82,8 +71,8 @@ async fn maintainer_check(ctx: &Context, msg: &Message, _: &mut Args, _: &Comman
 }
 
 #[help]
-#[individual_command_tip("Skraid is completely managed, so outside of configuring the alert channel (`set_alert_channel`), you don't have to do anything!\n\nTo get help with an individual command, pass its name as an argument to this command.")]
-#[no_help_available_text("You do not have sufficient permissions to interact with me.")]
+#[individual_command_tip("Skraid is completely managed, so outside of configuring the alert channel (`SetAlertChannel`), you don't have to do anything!\n\nTo get help with an individual command, pass its name as an argument to this command.")]
+#[no_help_available_text("The command you have entered is either invalid or you do not have sufficient permissions to use it.")]
 #[strikethrough_commands_tip_in_guild("")]
 #[strikethrough_commands_tip_in_dm("")]
 #[lacking_permissions(hide)]
@@ -141,8 +130,6 @@ async fn create_framework(prefix: String, bot_id: UserId) -> StandardFramework {
         .help(&HELP)
         .group(&CONFIGURATION_GROUP)
         .group(&UTILITIES_GROUP)
-        .group(&ALLOWLIST_GROUP)
-        .group(&SUGGESTION_GROUP)
         .group(&MAINTAINER_GROUP)
         // rate limit after 3 uses over 5 seconds
         .bucket("staff", |b| b.limit_for(LimitedFor::Guild).time_span(5).limit(3))

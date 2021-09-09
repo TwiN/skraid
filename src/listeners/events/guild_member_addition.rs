@@ -32,7 +32,7 @@ pub async fn guild_member_addition(ctx: Context, guild_id: GuildId, new_member: 
             println!("[{}] {} ({}) is allowlisted", guild_id.0, new_member.user.tag(), new_member.user.id.0);
             return;
         }
-        is_blocklisted = match db.is_blocklisted(new_member.user.id.0) {
+        is_blocklisted = match db.is_in_user_blocklist(new_member.user.id.0) {
             Ok(b) => b,
             Err(e) => {
                 eprintln!("[{}] Failed to check whether user {} was blocklisted: {}", guild_id.0, new_member.user.id.0, e.to_string());
