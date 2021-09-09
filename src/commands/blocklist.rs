@@ -1,5 +1,5 @@
-use crate::config::{Config, KEY_MAINTAINER_ID};
 use crate::database::Database;
+use crate::utilities::communication::forward_to_maintainer;
 use crate::utilities::logging::log;
 use serenity::framework::standard::CommandError;
 use serenity::model::channel::Message;
@@ -20,18 +20,19 @@ async fn blocklist(ctx: &Context, msg: &Message, mut args: Args) -> CommandResul
     let reason = args.rest();
     {
         let data = ctx.data.read().await;
-        let mutex = data.get::<Database>().unwrap();
-        let db = mutex.lock().unwrap();
-        for id in ids_iterator {
-            let id = match id.parse::<u64>() {
-                Ok(n) => n,
-                Err(e) => return Err(CommandError::from(e.to_string())),
-            };
-            match db.insert_in_blocklist(id, reason.to_string()) {
-                Ok(_) => (),
-                Err(e) => return Err(CommandError::from(e.to_string())),
-            };
-            log(ctx, msg, format!("Successfully added id={} to blocklist for reason={}", id, reason));
+        if let Some(mutex) = data.get::<Database>() {
+            let db = mutex.lock().unwrap();
+            for id in ids_iterator {
+                let id = match id.parse::<u64>() {
+                    Ok(n) => n,
+                    Err(e) => return Err(CommandError::from(e.to_string())),
+                };
+                match db.insert_in_blocklist(id, reason.to_string()) {
+                    Ok(_) => (),
+                    Err(e) => return Err(CommandError::from(e.to_string())),
+                };
+                log(ctx, msg, format!("Successfully added id={} to blocklist for reason={}", id, reason));
+            }
         }
     }
     return Ok(());
@@ -50,12 +51,13 @@ async fn unblocklist(ctx: &Context, _: &Message, args: Args) -> CommandResult {
     };
     {
         let data = ctx.data.read().await;
-        let mutex = data.get::<Database>().unwrap();
-        let db = mutex.lock().unwrap();
-        match db.remove_from_blocklist(id) {
-            Ok(b) => b,
-            Err(e) => return Err(CommandError::from(e.to_string())),
-        };
+        if let Some(mutex) = data.get::<Database>() {
+            let db = mutex.lock().unwrap();
+            match db.remove_from_blocklist(id) {
+                Ok(b) => b,
+                Err(e) => return Err(CommandError::from(e.to_string())),
+            };
+        }
     }
     return Ok(());
 }
@@ -73,12 +75,13 @@ async fn is_blocklisted(ctx: &Context, msg: &Message, args: Args) -> CommandResu
     let is_banned: bool;
     {
         let data = ctx.data.read().await;
-        let mutex = data.get::<Database>().unwrap();
-        let db = mutex.lock().unwrap();
-        is_banned = match db.is_blocklisted(id) {
-            Ok(b) => b,
-            Err(e) => return Err(CommandError::from(e.to_string())),
-        };
+        if let Some(mutex) = data.get::<Database>() {
+            let db = mutex.lock().unwrap();
+            is_banned = match db.is_blocklisted(id) {
+                Ok(b) => b,
+                Err(e) => return Err(CommandError::from(e.to_string())),
+            };
+        }
     }
     msg.reply(ctx, format!("{}", is_banned)).await?;
     return Ok(());
@@ -91,18 +94,5 @@ async fn is_blocklisted(ctx: &Context, msg: &Message, args: Args) -> CommandResu
 #[min_args(2)]
 #[bucket(suggestion)]
 async fn suggest_blocklist(ctx: &Context, msg: &Message) -> CommandResult {
-    let maintainer_user_id_as_string: String;
-    {
-        let reader = ctx.data.read().await;
-        let config = reader.get::<Config>().expect("Expected Config to exist in context data").clone();
-        let cfg = config.read().unwrap();
-        maintainer_user_id_as_string = cfg.get(KEY_MAINTAINER_ID).unwrap().clone();
-    }
-    let maintainer_user_id = match maintainer_user_id_as_string.parse::<u64>() {
-        Ok(n) => n,
-        Err(e) => return Err(CommandError::from(e.to_string())),
-    };
-    let user = ctx.http.get_user(maintainer_user_id).await.unwrap();
-    let _ = user.direct_message(&ctx, |m| m.content(format!("{} from {}: ```{}```", msg.author.tag(), msg.guild_id.unwrap().0, msg.content))).await;
-    return Ok(());
+    return forward_to_maintainer(ctx, msg).await;
 }

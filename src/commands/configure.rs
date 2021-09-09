@@ -26,11 +26,12 @@ async fn set_alert_channel(ctx: &Context, msg: &Message, args: Args) -> CommandR
     let _ = verification_message.delete(ctx).await;
     {
         let data = ctx.data.read().await;
-        let mutex = data.get::<Database>().unwrap();
-        let db = mutex.lock().unwrap();
-        match db.upsert_guild_alert_channel_id(msg.guild_id.unwrap().0, alert_channel_id) {
-            Ok(_) => log(ctx, msg, format!("Updated alert_channel_id to {}", alert_channel_id)),
-            Err(e) => return Err(CommandError::from(e.to_string())),
+        if let Some(mutex) = data.get::<Database>() {
+            let db = mutex.lock().unwrap();
+            match db.upsert_guild_alert_channel_id(msg.guild_id.unwrap().0, alert_channel_id) {
+                Ok(_) => log(ctx, msg, format!("Updated alert_channel_id to {}", alert_channel_id)),
+                Err(e) => return Err(CommandError::from(e.to_string())),
+            }
         }
     }
     Ok(())
@@ -54,11 +55,12 @@ async fn set_alert_only(ctx: &Context, msg: &Message, args: Args) -> CommandResu
     }
     {
         let data = ctx.data.read().await;
-        let mutex = data.get::<Database>().unwrap();
-        let db = mutex.lock().unwrap();
-        match db.upsert_guild_alert_only(msg.guild_id.unwrap().0, alert_only) {
-            Ok(_) => log(ctx, msg, format!("Updated alert_only to {}", alert_only)),
-            Err(e) => return Err(CommandError::from(e.to_string())),
+        if let Some(mutex) = data.get::<Database>() {
+            let db = mutex.lock().unwrap();
+            match db.upsert_guild_alert_only(msg.guild_id.unwrap().0, alert_only) {
+                Ok(_) => log(ctx, msg, format!("Updated alert_only to {}", alert_only)),
+                Err(e) => return Err(CommandError::from(e.to_string())),
+            }
         }
     }
     Ok(())
@@ -82,11 +84,12 @@ async fn set_ban_new_user_on_join(ctx: &Context, msg: &Message, args: Args) -> C
     }
     {
         let data = ctx.data.read().await;
-        let mutex = data.get::<Database>().unwrap();
-        let db = mutex.lock().unwrap();
-        match db.upsert_guild_ban_new_user_on_join(msg.guild_id.unwrap().0, ban_new_user_on_join) {
-            Ok(_) => log(ctx, msg, format!("Updated ban_new_user_on_join to {}", ban_new_user_on_join)),
-            Err(e) => return Err(CommandError::from(e.to_string())),
+        if let Some(mutex) = data.get::<Database>() {
+            let db = mutex.lock().unwrap();
+            match db.upsert_guild_ban_new_user_on_join(msg.guild_id.unwrap().0, ban_new_user_on_join) {
+                Ok(_) => log(ctx, msg, format!("Updated ban_new_user_on_join to {}", ban_new_user_on_join)),
+                Err(e) => return Err(CommandError::from(e.to_string())),
+            }
         }
     }
     Ok(())
@@ -110,11 +113,12 @@ async fn set_ban_user_on_join(ctx: &Context, msg: &Message, args: Args) -> Comma
     }
     {
         let data = ctx.data.read().await;
-        let mutex = data.get::<Database>().unwrap();
-        let db = mutex.lock().unwrap();
-        match db.upsert_guild_ban_user_on_join(msg.guild_id.unwrap().0, ban_user_on_join) {
-            Ok(_) => log(ctx, msg, format!("Updated ban_user_on_join to {}", ban_user_on_join)),
-            Err(e) => return Err(CommandError::from(e.to_string())),
+        if let Some(mutex) = data.get::<Database>() {
+            let db = mutex.lock().unwrap();
+            match db.upsert_guild_ban_user_on_join(msg.guild_id.unwrap().0, ban_user_on_join) {
+                Ok(_) => log(ctx, msg, format!("Updated ban_user_on_join to {}", ban_user_on_join)),
+                Err(e) => return Err(CommandError::from(e.to_string())),
+            }
         }
     }
     Ok(())
@@ -131,17 +135,18 @@ async fn get_guild_config(ctx: &Context, msg: &Message) -> CommandResult {
     let ban_user_on_join: bool;
     {
         let data = ctx.data.read().await;
-        let mutex = data.get::<Database>().unwrap();
-        let db = mutex.lock().unwrap();
-        match db.get_guild_configuration(msg.guild_id.unwrap().0) {
-            Ok((a, b, c, d)) => {
-                alert_only = a;
-                alert_channel_id = b;
-                ban_new_user_on_join = c;
-                ban_user_on_join = d;
-                ()
+        if let Some(mutex) = data.get::<Database>() {
+            let db = mutex.lock().unwrap();
+            match db.get_guild_configuration(msg.guild_id.unwrap().0) {
+                Ok((a, b, c, d)) => {
+                    alert_only = a;
+                    alert_channel_id = b;
+                    ban_new_user_on_join = c;
+                    ban_user_on_join = d;
+                    ()
+                }
+                Err(e) => return Err(CommandError::from(e.to_string())),
             }
-            Err(e) => return Err(CommandError::from(e.to_string())),
         }
     }
     if alert_channel_id == 0 {
