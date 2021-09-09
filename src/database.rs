@@ -183,7 +183,7 @@ impl Database {
     }
 
     pub fn get_forbidden_words(&self) -> Result<Vec<String>> {
-        let mut statement = self.connection.prepare("SELECT word FROM forbidden_words")?;
+        let mut statement = self.connection.prepare("SELECT word FROM forbidden_words ORDER BY word")?;
         let mut rows = statement.query([])?;
         let mut forbidden_words: Vec<String> = Vec::new();
         while let Some(row) = rows.next()? {
