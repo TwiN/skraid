@@ -1,3 +1,4 @@
+use crate::antiraid::AntiRaid;
 use crate::database::Database;
 use chrono::Utc;
 use serenity::client::Context;
@@ -12,45 +13,76 @@ pub async fn guild_member_addition(ctx: Context, guild_id: GuildId, new_member: 
     let number_of_hours_since_account_creation = (Utc::now().timestamp() - new_member.user.created_at().timestamp()) / 3600;
     let was_account_created_recently = number_of_hours_since_account_creation <= 2;
     println!("[{}] {} ({}) joined {}; new_account={}", guild_id.0, new_member.user.tag(), new_member.user.id.0, guild_id.name(&ctx).await.unwrap(), was_account_created_recently);
-    let is_blocklisted: bool;
+    let mut is_blocklisted: bool = false;
+    let mut is_raiding: bool = false;
+    let mut users_to_ban_if_is_raiding: Option<Vec<u64>> = None;
     let mut alert_only: bool = true;
     let mut alert_channel_id: u64 = 0;
     let mut ban_new_user_on_join: bool = false;
     let mut ban_user_on_join: bool = false;
     {
         let data = ctx.data.read().await;
-        let mutex = data.get::<Database>().unwrap();
-        let db = mutex.lock().unwrap();
-        let is_allowlisted = match db.is_allowlisted(guild_id.0, new_member.user.id.0) {
-            Ok(b) => b,
-            Err(e) => {
-                eprintln!("[{}] Failed to check whether user {} () was allowlisted: {}", guild_id.0, new_member.user.id.0, e.to_string());
-                false
+        if let Some(db_mutex) = data.get::<Database>() {
+            let db = db_mutex.lock().unwrap();
+            let is_allowlisted = match db.is_allowlisted(guild_id.0, new_member.user.id.0) {
+                Ok(b) => b,
+                Err(e) => {
+                    eprintln!("[{}] Failed to check whether user {} () was allowlisted: {}", guild_id.0, new_member.user.id.0, e.to_string());
+                    false
+                }
+            };
+            if is_allowlisted {
+                println!("[{}] {} ({}) is allowlisted", guild_id.0, new_member.user.tag(), new_member.user.id.0);
+                return;
             }
-        };
-        if is_allowlisted {
-            println!("[{}] {} ({}) is allowlisted", guild_id.0, new_member.user.tag(), new_member.user.id.0);
-            return;
+            is_blocklisted = match db.is_in_user_blocklist(new_member.user.id.0) {
+                Ok(b) => b,
+                Err(e) => {
+                    eprintln!("[{}] Failed to check whether user {} was blocklisted: {}", guild_id.0, new_member.user.id.0, e.to_string());
+                    false
+                }
+            };
+            match db.get_guild_configuration(guild_id.0) {
+                Ok((a, b, c, d)) => {
+                    alert_only = a;
+                    alert_channel_id = b;
+                    ban_new_user_on_join = c;
+                    ban_user_on_join = d;
+                    ()
+                }
+                Err(e) => {
+                    eprintln!("[{}] Failed to retrieve guild configuration: {}", guild_id.0, e.to_string());
+                    ()
+                }
+            }
         }
-        is_blocklisted = match db.is_in_user_blocklist(new_member.user.id.0) {
-            Ok(b) => b,
-            Err(e) => {
-                eprintln!("[{}] Failed to check whether user {} was blocklisted: {}", guild_id.0, new_member.user.id.0, e.to_string());
-                false
+        if let Some(anti_raid_mutex) = data.get::<AntiRaid>() {
+            let mut anti_raid = anti_raid_mutex.lock().unwrap();
+            is_raiding = anti_raid.check_if_raiding(guild_id.0, new_member.user.id.0);
+            if is_raiding {
+                if let Some(recent_member_ids) = anti_raid.get_recent_member_ids(guild_id.0) {
+                    users_to_ban_if_is_raiding = Some(recent_member_ids.to_vec());
+                    anti_raid.delete_recent_member_ids(guild_id.0);
+                }
             }
-        };
-        match db.get_guild_configuration(guild_id.0) {
-            Ok((a, b, c, d)) => {
-                alert_only = a;
-                alert_channel_id = b;
-                ban_new_user_on_join = c;
-                ban_user_on_join = d;
-                ()
+        }
+    }
+    if is_raiding {
+        if let Some(users_to_ban) = users_to_ban_if_is_raiding {
+            if alert_channel_id != 0 {
+                let _ = ChannelId(alert_channel_id).send_message(&ctx, |m| {
+                    m.add_embed(|e| {
+                        e.title("Anti-raid (ALPHA)");
+                        e.description("At least 5 users have joined within the last 10 seconds\n\nYour guild may currently be getting raided, but due to the anti-raid feature being in ALPHA, no automated action will be taken.\n\nIf you really are being raided, using the command `SetBanUserOnJoin true` will automatically ban users attempting to join your guild.");
+                        e
+                    })
+                }).await;
             }
-            Err(e) => {
-                eprintln!("[{}] Failed to retrieve guild configuration: {}", guild_id.0, e.to_string());
-                ()
-            }
+            println!(
+                "[{}] Guild may currently be getting raided. (DISABLED BECAUSE ALPHA) Users to ban: {}",
+                guild_id.0,
+                users_to_ban.to_vec().into_iter().map(|i| i.to_string()).collect::<String>()
+            );
         }
     }
     if is_blocklisted || (was_account_created_recently && ban_new_user_on_join) || ban_user_on_join {

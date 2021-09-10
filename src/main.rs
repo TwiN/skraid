@@ -1,3 +1,4 @@
+use crate::antiraid::AntiRaid;
 use crate::antispam::AntiSpam;
 use crate::config::{load_configuration_map, Config};
 use crate::database::Database;
@@ -29,6 +30,7 @@ use std::sync::{Arc, Mutex, RwLock};
 
 extern crate lru_time_cache;
 
+mod antiraid;
 mod antispam;
 mod commands;
 mod config;
@@ -164,6 +166,7 @@ async fn main() {
         data.insert::<Config>(Arc::new(RwLock::new(config)));
         data.insert::<Database>(Arc::new(Mutex::new(Database::new(database_path))));
         data.insert::<AntiSpam>(Arc::new(Mutex::new(AntiSpam::new())));
+        data.insert::<AntiRaid>(Arc::new(Mutex::new(AntiRaid::new())));
     }
     if let Err(why) = client.start().await {
         eprintln!("An error occurred while running the client: {:?}", why);

@@ -5,7 +5,7 @@ use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
 pub struct AntiSpam {
-    pub rate_limit_cache: LruCache<String, RateLimiter>,
+    pub rate_limiter_cache: LruCache<String, RateLimiter>,
     pub guild_member_recent_message_ids_cache: LruCache<String, Vec<ChannelAndMessageId>>,
 }
 
@@ -22,16 +22,16 @@ impl TypeMapKey for AntiSpam {
 impl AntiSpam {
     pub fn new() -> AntiSpam {
         AntiSpam {
-            rate_limit_cache: LruCache::<String, RateLimiter>::with_expiry_duration_and_capacity(Duration::from_secs(600), 10000),
+            rate_limiter_cache: LruCache::<String, RateLimiter>::with_expiry_duration_and_capacity(Duration::from_secs(600), 10000),
             guild_member_recent_message_ids_cache: LruCache::<String, Vec<ChannelAndMessageId>>::with_expiry_duration_and_capacity(Duration::from_secs(15), 1000),
         }
     }
 
     pub fn check_if_spamming(&mut self, guild_id: u64, user_id: u64, channel_id: u64, message_id: u64) -> bool {
         let key = self.create_key(guild_id, user_id);
-        if self.rate_limit_cache.contains_key(&key) {
+        if self.rate_limiter_cache.contains_key(&key) {
             self.save_message_id_from_guild_member(&key, channel_id, message_id);
-            return if let Some(limiter) = self.rate_limit_cache.get_mut(&key) {
+            return if let Some(limiter) = self.rate_limiter_cache.get_mut(&key) {
                 // If the attempt returns false, user is spamming
                 // If the attempt returns true, user is not spamming (yet, at least)
                 return !limiter.attempt();
@@ -40,9 +40,9 @@ impl AntiSpam {
                 false
             };
         }
-        // There's no cache entry for the user, so we'll create one
         self.save_message_id_from_guild_member(&key, channel_id, message_id);
-        self.rate_limit_cache.insert(key, RateLimiter::new(4, Duration::from_secs(8)).with_refill_policy(RefillPolicy::Gradual));
+        // There's no cache entry for the user, so we'll create one
+        self.rate_limiter_cache.insert(key, RateLimiter::new(4, Duration::from_secs(8)).with_refill_policy(RefillPolicy::Gradual));
         false
     }
 
