@@ -12,6 +12,7 @@ This bot is built with several fail-safe mechanisms to prevent abuse.
 One of these fail-safe mechanisms is the fact that inviting the bot to a guild does not allow you to modify the global user blocklist. The staff members of each guild (i.e. users with BAN_MEMBERS permissions) may suggest the addition of users to the global user blocklist by using `s!suggest UserBlocklist USER_ID`, but the decision is ultimately up to several factors which will not be disclosed to prevent malicious actors from attempting to circumvent the system. Do not be too worried, though, as one of the measures put in place requires manual action from the maintainer of the bot.
 
 ## Features
+- Detect when a user is spamming (and optionally deletes the messages marked as spam if Skraid is not in alert-only mode).
 - Send an alert if a user in the global blocklist has joined the server (or ban said user, if configured to do so). Does not affect users that were already in the server.
 - Supports per-server list of "exceptions" (allowlist), in case a guild wishes to let a user in the global ban list (blocklist) join their server anyways. This only really applies if the bot is configured to ban instead of alert.
 - Detect messages containing known phishing/scam links and send an alert, or delete said messages if configured to do so.
