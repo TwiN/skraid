@@ -19,6 +19,10 @@ One of these fail-safe mechanisms is the fact that inviting the bot to a guild d
 - Configuration for setting up a channel for alerts, including replacing all actions by alerts sent to said channel.
 - Has some utility functions to manage raids
 
+<video width="306" height="204" controls>
+  <source src="https://raw.githubusercontent.com/TwinProduction/assets/master/anti-spam.mp4" type="video/mp4">
+</video>
+
 
 ## Important notes
 Before providing the instructions to get started with Skraid, there are some things that you must be made aware of.
