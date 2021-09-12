@@ -10,7 +10,7 @@ use serenity::{
 const MAXIMUM_NUMBER_OF_ALLOWLISTED_USERS_PER_GUILD: u64 = 100;
 
 #[command("UserAllowlist")]
-#[description("Interact with the guild user allowlist.\nIn essence, this allows staff members of a guild to let users present in Skraid's global user blocklist to join the guild.\n\nNot necessary if the guild is in alert-only mode, which is the default behavior.")]
+#[description("Interact with the guild user allowlist.\nIn essence, this allows staff members of a guild to let users present in Skraid's global user blocklist to join the guild.\n\nNot necessary if the guild is in alert-only mode.")]
 #[aliases(userallowlist)]
 #[sub_commands(user_allowlist_add, user_allowlist_remove, user_allowlist_search, user_allowlist_list)]
 #[min_args(1)]

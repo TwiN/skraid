@@ -13,7 +13,7 @@ pub async fn message(ctx: Context, msg: Message) {
     }
     let mut is_spamming: bool = false;
     let mut messages_to_delete: Option<Vec<ChannelAndMessageId>> = None;
-    let mut alert_only: bool = true;
+    let mut alert_only: bool = false;
     let mut alert_channel_id: u64 = 0;
     {
         let data = ctx.data.read().await;

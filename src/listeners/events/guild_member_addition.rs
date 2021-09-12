@@ -16,7 +16,7 @@ pub async fn guild_member_addition(ctx: Context, guild_id: GuildId, new_member: 
     let mut is_blocklisted: bool = false;
     let mut is_raiding: bool = false;
     let mut users_to_ban_if_is_raiding: Option<Vec<u64>> = None;
-    let mut alert_only: bool = true;
+    let mut alert_only: bool = false;
     let mut alert_channel_id: u64 = 0;
     let mut ban_new_user_on_join: bool = false;
     let mut ban_user_on_join: bool = false;

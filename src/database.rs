@@ -27,9 +27,6 @@ impl Database {
     }
 
     pub fn create_schema(&self) {
-        // let _ = self.connection.execute("ALTER TABLE blocklist RENAME TO user_blocklist;", []);
-        // let _ = self.connection.execute("ALTER TABLE allowlist RENAME TO user_allowlist;", []);
-        // let _ = self.connection.execute("ALTER TABLE forbidden_words RENAME TO word_blocklist;", []);
         match self.connection.execute(
             "CREATE TABLE IF NOT EXISTS user_blocklist (
                 user_id    UNSIGNED BIG INT PRIMARY KEY,
@@ -44,9 +41,8 @@ impl Database {
         match self.connection.execute(
             "CREATE TABLE IF NOT EXISTS guilds (
                 guild_id                 UNSIGNED BIG INT PRIMARY KEY,
-                enabled                  INTEGER DEFAULT FALSE,
                 alert_channel_id         UNSIGNED BIG INT,
-                alert_only               INTEGER DEFAULT TRUE,
+                alert_only               INTEGER DEFAULT FALSE,
                 ban_new_user_on_join     INTEGER DEFAULT FALSE,
                 ban_user_on_join         INTEGER DEFAULT FALSE
             )",
@@ -196,7 +192,7 @@ impl Database {
     pub fn get_guild_configuration(&self, guild_id: u64) -> Result<(bool, u64, bool, bool)> {
         let mut statement = self.connection.prepare("SELECT alert_only, alert_channel_id, ban_new_user_on_join, ban_user_on_join FROM guilds WHERE guild_id = ?1 LIMIT 1")?;
         let mut rows = statement.query([guild_id])?;
-        let mut alert_only: bool = true;
+        let mut alert_only: bool = false;
         let mut alert_channel_id: u64 = 0;
         let mut ban_new_user_on_join: bool = false;
         let mut ban_user_on_join: bool = false;
