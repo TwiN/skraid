@@ -46,7 +46,7 @@ s!SetAlertOnly true
 ## Features
 - Detect when a user is spamming (and deletes the messages marked as spam if Skraid is not in alert-only mode).
 - Send an alert if a user in the global blocklist has joined the server (or ban said user, if configured to do so). Does not affect users that were already in the server.
-- Supports per-server list of "exceptions" (allowlist), in case a guild wishes to let a user in the global ban list (blocklist) join their server anyways. This only really applies if the bot is configured to ban instead of alert.
+- Supports per-server list of "exceptions" (allowlist), in case a guild wishes to let a user in the global ban list (blocklist) join their server anyways. This only applies if the bot is configured to ban instead of alert.
 - Detect messages containing known phishing/scam links and send an alert, or delete said messages if configured to do so.
 - Configuration for setting up a channel for alerts, including replacing all actions by alerts sent to said channel.
 - Has some utility functions to manage raids
