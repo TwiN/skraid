@@ -41,10 +41,10 @@ impl Database {
         match self.connection.execute(
             "CREATE TABLE IF NOT EXISTS guilds (
                 guild_id                 UNSIGNED BIG INT PRIMARY KEY,
-                alert_channel_id         UNSIGNED BIG INT DEFAULT 0,
-                alert_only               INTEGER DEFAULT FALSE,
-                ban_new_user_on_join     INTEGER DEFAULT FALSE,
-                ban_user_on_join         INTEGER DEFAULT FALSE
+                alert_channel_id         UNSIGNED BIG INT DEFAULT 0 NOT NULL,
+                alert_only               INTEGER DEFAULT FALSE NOT NULL,
+                ban_new_user_on_join     INTEGER DEFAULT FALSE NOT NULL,
+                ban_user_on_join         INTEGER DEFAULT FALSE NOT NULL
             )",
             [],
         ) {
