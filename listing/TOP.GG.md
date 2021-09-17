@@ -11,18 +11,21 @@ This bot is built with several fail-safe mechanisms to prevent abuse.
 
 One of these fail-safe mechanisms is the fact that inviting the bot to a guild does not allow you to modify the global user blocklist. The staff members of each guild (i.e. users with BAN_MEMBERS permissions) may suggest the addition of users to the global user blocklist by using `s!suggest UserBlocklist USER_ID`, but the decision is ultimately up to several factors which will not be disclosed to prevent malicious actors from attempting to circumvent the system. Do not be too worried, though, as one of the measures put in place requires manual action from the maintainer of the bot.
 
-
-## Features
-- Detect when a user is spamming (and deletes the messages marked as spam if Skraid is not in alert-only mode).
-- Send an alert if a user in the global blocklist has joined the server (or ban said user, if configured to do so). Does not affect users that were already in the server.
-- Supports per-server list of "exceptions" (allowlist), in case a guild wishes to let a user in the global ban list (blocklist) join their server anyways. This only applies if the bot is configured to ban instead of alert.
-- Detect messages containing known phishing/scam links and send an alert, or delete said messages if configured to do so.
-- Configuration for setting up a channel for alerts, including replacing all actions by alerts sent to said channel.
-- Has some utility functions to manage raids
+Of course, Skraid is also equipped with features such as an automated anti-spam handler as well as commands to mitigate raids and even an automatic anti-raid detection feature, though the latter is currently in alpha and only sends an alert in the guild's configured alert channel.
 
 <video width="306" height="204" controls>
   <source src="https://raw.githubusercontent.com/TwinProduction/assets/master/anti-spam.mp4" type="video/mp4">
 </video>
+
+
+
+## Features
+- Detect when a user is spamming (and deletes the messages marked as spam if Skraid is not in alert-only mode).
+- Send an alert if a user in the global blocklist has joined the server (or ban said user, if configured to do so). Does not affect users that were already in the server.
+- Supports per-server list of "exceptions" (allowlist), in case a guild wishes to let a user in the global ban list (blocklist) join their server anyways. This only really applies if the bot is configured to ban instead of alert.
+- Detect messages containing known phishing/scam links and send an alert, or delete said messages if configured to do so.
+- Configuration for setting up a channel for alerts, including replacing all actions by alerts sent to said channel.
+- Has some utility functions to manage raids
 
 
 ## Important notes
@@ -63,7 +66,7 @@ All commands must be prefixed `s!`.
 | SetAlertChannel        | Configure an alert channel by passing the desired channel id as argument
 | SetAlertOnly           | Configure Skraid's mode. If set to false, if a user in the blocklist joins the server, they will be automatically banned. Likewise, if a user posts a message containing a forbidden word (e.g. a link known to be related to phishing), said message will be deleted. In any case, alerts will be sent as long as the alert channel is configured.
 | SetBanNewUserOnJoin    | Configure whether Skraid should automatically ban users that were created less than two hours ago when they join the guild.
-| SetBanNewUserOnJoin    | Configure whether Skraid should automatically ban every user that joins the guild. Used for when your guild is actively being raided.
+| SetBanUserOnJoin       | Configure whether Skraid should automatically ban every user that joins the guild. Used for when your guild is actively being raided.
 
 **NOTE**: Setting `SetAlertOnly` to false will cause any user in the global user blocklist to be banned as soon as they join the server. Furthermore, it will also cause the deletion of new messages containing one or more forbidden word (e.g. a link known to be related to phishing). In any case, alerts will always be sent as long as the alert channel is configured.
 

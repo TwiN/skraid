@@ -66,7 +66,7 @@ All commands must be prefixed by the `COMMAND_PREFIX`, or `s!` by default.
 | SetAlertChannel           | Configure an alert channel by passing the desired channel id as argument
 | SetAlertOnly              | Configure Skraid's mode. If set to false, if a user in the blocklist joins the server, they will be automatically banned. Likewise, if a user posts a message containing a forbidden word (e.g. a link known to be related to phishing), said message will be deleted. In any case, alerts will be sent as long as the alert channel is configured.
 | SetBanNewUserOnJoin       | Configure whether Skraid should automatically ban users that were created less than two hours ago when they join the guild.
-| SetBanNewUserOnJoin          | Configure whether Skraid should automatically ban every user that joins the guild. Used for when your guild is actively being raided.
+| SetBanUserOnJoin          | Configure whether Skraid should automatically ban every user that joins the guild. Used for when your guild is actively being raided.
 
 ### User Allowlist
 Each guild has their own separate allowlist which, in the case that they chose to enable Skraid's automatic banning capabilities,
