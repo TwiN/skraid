@@ -41,7 +41,7 @@ impl Database {
         match self.connection.execute(
             "CREATE TABLE IF NOT EXISTS guilds (
                 guild_id                 UNSIGNED BIG INT PRIMARY KEY,
-                alert_channel_id         UNSIGNED BIG INT,
+                alert_channel_id         UNSIGNED BIG INT DEFAULT 0,
                 alert_only               INTEGER DEFAULT FALSE,
                 ban_new_user_on_join     INTEGER DEFAULT FALSE,
                 ban_user_on_join         INTEGER DEFAULT FALSE
@@ -197,10 +197,35 @@ impl Database {
         let mut ban_new_user_on_join: bool = false;
         let mut ban_user_on_join: bool = false;
         while let Some(row) = rows.next()? {
-            alert_only = row.get(0).unwrap();
-            alert_channel_id = row.get(1).unwrap();
-            ban_new_user_on_join = row.get(2).unwrap();
-            ban_user_on_join = row.get(3).unwrap();
+            alert_only = match row.get(0) {
+                Err(e) => {
+                    eprintln!("Failed to extract column alert_only: {}", e.to_string());
+                    alert_only
+                }
+                Ok(bool) => bool,
+            };
+            alert_channel_id = match row.get(1) {
+                Err(e) => {
+                    eprintln!("Failed to extract column alert_channel_id: {}", e.to_string());
+                    alert_channel_id
+                }
+                Ok(id) => id,
+            };
+            ban_new_user_on_join = match row.get(2) {
+                Err(e) => {
+                    eprintln!("Failed to extract column ban_new_user_on_join: {}", e.to_string());
+                    ban_new_user_on_join
+                }
+                Ok(bool) => bool,
+            };
+            ban_user_on_join = match row.get(3) {
+                Err(e) => {
+                    eprintln!("Failed to extract column ban_user_on_join: {}", e.to_string());
+                    ban_user_on_join
+                }
+                Ok(bool) => bool,
+            };
+            break;
         }
         return Ok((alert_only, alert_channel_id, ban_new_user_on_join, ban_user_on_join));
     }
