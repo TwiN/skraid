@@ -146,7 +146,7 @@ async fn handle_spammer(ctx: &Context, msg: &Message, messages_to_delete: &mut O
             }
         }
         if alert_channel_id != 0 {
-            let alert_description = format!("<@{0}> was spamming, so their messages were automatically deleted", msg.author.id.0);
+            let alert_description = format!("<@{0}> was spamming, so their recent messages were automatically deleted", msg.author.id.0);
             let _ = ChannelId(alert_channel_id).send_message(&ctx, |m| m.add_embed(|e| e.description(&alert_description))).await;
             log(&ctx, &msg, format!("⚠ Message sent: {0}", &alert_description));
         }
