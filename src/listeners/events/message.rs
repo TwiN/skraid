@@ -35,7 +35,6 @@ pub async fn message(ctx: Context, msg: Message) {
             let mut anti_spam = anti_spam_mutex.lock().unwrap();
             is_spamming = anti_spam.check_if_spamming(msg.guild_id.unwrap().0, msg.author.id.0, msg.channel_id.0, msg.id.0);
             if is_spamming {
-                log(&ctx, &msg, format!("User {} may be spamming: {}", msg.author.tag(), msg.content));
                 if let Some(channel_and_message_ids) = anti_spam.get_recent_message_ids(msg.guild_id.unwrap().0, msg.author.id.0) {
                     messages_to_delete = Some(channel_and_message_ids.to_vec());
                 }
@@ -103,22 +102,29 @@ pub async fn message(ctx: Context, msg: Message) {
     } else if message_content.contains("http")
         && (message_content.contains("free") || message_content.contains("nitro") || message_content.contains("skin") || message_content.contains("win"))
     {
-        log(&ctx, &msg, format!("Potentially suspicious message: {}", msg.content.to_string()));
+        log(&ctx, &msg, format!("⚠ {} ({}) sent a potentially suspicious message: {}", msg.author.name, msg.author.id.0, msg.content.to_string()));
     }
 }
 
 async fn handle_spammer(ctx: &Context, msg: &Message, messages_to_delete: &mut Option<Vec<ChannelAndMessageId>>, alert_only: bool, alert_channel_id: u64) {
     if alert_only {
         if alert_channel_id != 0 {
-            let _ = ChannelId(alert_channel_id)
-                .send_message(&ctx, |m| {
-                    m.add_embed(|e| {
-                        e.description(format!("<@{0}> is currently spamming, but their messages will not be deleted due to `alert_only` being set to `true`", msg.author.id.0,))
-                    })
-                })
-                .await;
+            let alert_description = format!("<@{0}> is currently spamming, but their messages will not be deleted due to `alert_only` being set to `true`", msg.author.id.0);
+            let _ = ChannelId(alert_channel_id).send_message(&ctx, |m| m.add_embed(|e| e.description(&alert_description))).await;
+            log(&ctx, &msg, format!("⚠ Message sent: {}", &alert_description));
         }
     } else {
+        log(&ctx, &msg, format!("⚠ Attempting to delete recent spam messages from user {} ({})", msg.author.name, msg.author.id.0));
+        let bot_user = ctx.cache.current_user().await;
+        let bot_member = ctx.cache.member(msg.guild_id.unwrap().0, bot_user.id).await;
+        if !bot_member.unwrap().permissions(&ctx).await.unwrap().contains(Permissions::MANAGE_MESSAGES) {
+            if alert_channel_id != 0 {
+                let alert_description = format!("<@{0}> is spamming, but I cannot delete their recent messages because I lack MANAGE_MESSAGES permissions", msg.author.id.0);
+                let _ = ChannelId(alert_channel_id).send_message(&ctx, |m| m.add_embed(|e| e.description(&alert_description))).await;
+                log(&ctx, &msg, format!("⚠ Message sent: {0}", &alert_description));
+            }
+            return;
+        }
         if let Some(messages) = messages_to_delete {
             let mut messages_by_channel: HashMap<u64, Vec<MessageId>> = HashMap::new();
             // split messages by channel so we can bulk delete them
@@ -135,14 +141,14 @@ async fn handle_spammer(ctx: &Context, msg: &Message, messages_to_delete: &mut O
                 //println!("{} {}", channel_id, message_ids.to_vec().into_iter().map(|i| i.to_string()).collect::<String>());
                 match ChannelId(channel_id).delete_messages(&ctx, message_ids).await {
                     Ok(_) => (),
-                    Err(e) => eprintln!("{}", e.to_string()),
+                    Err(e) => eprintln!("Failed to delete messages: {}", e.to_string()),
                 }
             }
         }
         if alert_channel_id != 0 {
-            let _ = ChannelId(alert_channel_id)
-                .send_message(&ctx, |m| m.add_embed(|e| e.description(format!("<@{0}> was spamming, so their messages were automatically deleted", msg.author.id.0,))))
-                .await;
+            let alert_description = format!("<@{0}> was spamming, so their messages were automatically deleted", msg.author.id.0);
+            let _ = ChannelId(alert_channel_id).send_message(&ctx, |m| m.add_embed(|e| e.description(&alert_description))).await;
+            log(&ctx, &msg, format!("⚠ Message sent: {0}", &alert_description));
         }
     }
 }

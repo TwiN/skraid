@@ -69,19 +69,23 @@ pub async fn guild_member_addition(ctx: Context, guild_id: GuildId, new_member: 
     }
     if is_raiding {
         if let Some(users_to_ban) = users_to_ban_if_is_raiding {
+            let alert_description = "At least 5 users have joined within the last 10 seconds\n\nYour guild may currently be getting raided, but due to the anti-raid feature being in ALPHA, no automated action will be taken.\n\nIf you really are being raided, using the command `SetBanUserOnJoin true` will automatically ban users attempting to join your guild.";
             if alert_channel_id != 0 {
-                let _ = ChannelId(alert_channel_id).send_message(&ctx, |m| {
-                    m.add_embed(|e| {
-                        e.title("Anti-raid (ALPHA)");
-                        e.description("At least 5 users have joined within the last 10 seconds\n\nYour guild may currently be getting raided, but due to the anti-raid feature being in ALPHA, no automated action will be taken.\n\nIf you really are being raided, using the command `SetBanUserOnJoin true` will automatically ban users attempting to join your guild.");
-                        e
+                let _ = ChannelId(alert_channel_id)
+                    .send_message(&ctx, |m| {
+                        m.add_embed(|e| {
+                            e.title("Anti-raid (ALPHA)");
+                            e.description(&alert_description);
+                            e
+                        })
                     })
-                }).await;
+                    .await;
             }
             println!(
-                "[{}] Guild may currently be getting raided. (DISABLED BECAUSE ALPHA) Users to ban: {}",
+                "[{}] ⚠ (DISABLED BECAUSE ALPHA) Users to ban: {}; Message sent: {}",
                 guild_id.0,
-                users_to_ban.to_vec().into_iter().map(|i| i.to_string()).collect::<String>()
+                users_to_ban.to_vec().into_iter().map(|i| i.to_string()).collect::<String>(),
+                &alert_description
             );
         }
     }
