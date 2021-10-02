@@ -1,5 +1,6 @@
-use crate::listeners::events::{guild_create, guild_member_addition, message, ready};
+use crate::listeners::events::{guild_ban_addition, guild_create, guild_member_addition, message, ready};
 use serenity::model::guild::Guild;
+use serenity::model::user::User;
 use serenity::{
     async_trait,
     client::{Context, EventHandler},
@@ -24,5 +25,9 @@ impl EventHandler for Handler {
 
     async fn guild_create(&self, ctx: Context, guild: Guild, is_new: bool) {
         guild_create::guild_create(ctx, guild, is_new).await;
+    }
+
+    async fn guild_ban_addition(&self, ctx: Context, guild_id: GuildId, banned_user: User) {
+        guild_ban_addition::guild_ban_addition(ctx, guild_id, banned_user).await;
     }
 }
