@@ -107,6 +107,7 @@ pub async fn message(ctx: Context, msg: Message) {
 }
 
 async fn handle_spammer(ctx: &Context, msg: &Message, messages_to_delete: &mut Option<Vec<ChannelAndMessageId>>, alert_only: bool, alert_channel_id: u64) {
+    log(&ctx, &msg, format!("⚠ {} ({}) is spamming: {}", msg.author.name, msg.author.id.0, msg.content.to_string()));
     if alert_only {
         if alert_channel_id != 0 {
             let alert_description = format!("<@{0}> is currently spamming, but their messages will not be deleted due to `alert_only` being set to `true`", msg.author.id.0);
