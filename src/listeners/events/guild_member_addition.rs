@@ -3,7 +3,7 @@ use crate::database::Database;
 use chrono::Utc;
 use serenity::client::Context;
 use serenity::model::guild::Member;
-use serenity::model::id::{ChannelId, GuildId};
+use serenity::model::id::{ChannelId, GuildId, UserId};
 use serenity::model::Permissions;
 
 pub async fn guild_member_addition(ctx: Context, guild_id: GuildId, new_member: Member) {
@@ -69,24 +69,39 @@ pub async fn guild_member_addition(ctx: Context, guild_id: GuildId, new_member: 
     }
     if is_raiding {
         if let Some(users_to_ban) = users_to_ban_if_is_raiding {
-            let alert_description = "At least 5 users have joined within the last 10 seconds\n\nYour guild may currently be getting raided, but due to the anti-raid feature being in ALPHA, no automated action will be taken.\n\nIf you really are being raided, using the command `SetBanUserOnJoin true` will automatically ban users attempting to join your guild.";
+            let alert_description: &str;
+            if alert_only {
+                alert_description = "At least 5 join events have occurred within the last 10 seconds\n\nYour guild may currently be getting raided, but due to alert_only being set to true, no automated actions will be taken.\n\nYou may disable alert_only mode by typing `s!SetAlertOnly false`.";
+            } else {
+                alert_description = "At least 5 join events have occurred within the last 10 seconds\n\nYour guild may currently be getting raided, but due to the anti-raid feature being in BETA, some users may slip through.\n\nIf you really are being raided, using the command `SetBanUserOnJoin true` will automatically ban users attempting to join your guild.";
+            }
             if alert_channel_id != 0 {
                 let _ = ChannelId(alert_channel_id)
                     .send_message(&ctx, |m| {
                         m.add_embed(|e| {
-                            e.title("Anti-raid (ALPHA)");
+                            e.title("Anti-raid (BETA)");
                             e.description(&alert_description);
                             e
                         })
                     })
                     .await;
+                println!("[{}] ⚠ Message sent: {}", guild_id.0, &alert_description);
             }
-            println!(
-                "[{}] ⚠ (DISABLED BECAUSE ALPHA) Users to ban: {}; Message sent: {}",
-                guild_id.0,
-                users_to_ban.to_vec().into_iter().map(|i| i.to_string()).collect::<String>(),
-                &alert_description
-            );
+            if !alert_only {
+                for user_to_ban in users_to_ban.iter() {
+                    match guild_id.ban_with_reason(&ctx, UserId(*user_to_ban), 0, "Skraid: raid_detected").await {
+                        Err(e) => eprintln!("[{}] Failed to ban user: {}", guild_id.0, e.to_string()),
+                        Ok(_) => {
+                            if alert_channel_id != 0 {
+                                let _ = ChannelId(alert_channel_id)
+                                    .send_message(&ctx, |x| x.content(format!(":warning: User <@{}> has been banned for reason: raid_detected", user_to_ban)))
+                                    .await;
+                            }
+                            println!("[{}] User banned: {}", guild_id.0, user_to_ban);
+                        }
+                    }
+                }
+            }
         }
     }
     if is_blocklisted || (was_account_created_recently && ban_new_user_on_join) || ban_user_on_join {

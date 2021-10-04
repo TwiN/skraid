@@ -44,7 +44,9 @@ impl AntiRaid {
 
     fn save_guild_member_id(&mut self, key: &str, user_id: u64) {
         if let Some(user_ids) = self.guild_recently_joined_members_cache.get_mut(key) {
-            user_ids.push(user_id);
+            if !user_ids.contains(&user_id) {
+                user_ids.push(user_id);
+            }
         } else {
             self.guild_recently_joined_members_cache.insert(key.to_string(), vec![user_id]);
         }
