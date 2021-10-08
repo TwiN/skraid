@@ -52,7 +52,7 @@ s!SetAlertOnly true
 - Has some utility functions to manage raids
 
 <video width="306" height="204" controls>
-  <source src="https://raw.githubusercontent.com/TwinProduction/assets/master/anti-spam.mp4" type="video/mp4">
+  <source src="https://raw.githubusercontent.com/TwiN/assets/master/anti-spam.mp4" type="video/mp4">
 </video>
 
 

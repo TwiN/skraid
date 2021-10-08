@@ -14,7 +14,7 @@ One of these fail-safe mechanisms is the fact that inviting the bot to a guild d
 Of course, Skraid is also equipped with features such as an automated anti-spam handler as well as commands to mitigate raids and even an automatic anti-raid detection feature, though the latter is currently in alpha and only sends an alert in the guild's configured alert channel.
 
 <video width="306" height="204" controls>
-  <source src="https://raw.githubusercontent.com/TwinProduction/assets/master/anti-spam.mp4" type="video/mp4">
+  <source src="https://raw.githubusercontent.com/TwiN/assets/master/anti-spam.mp4" type="video/mp4">
 </video>
 
 
