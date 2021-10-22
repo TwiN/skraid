@@ -8,7 +8,7 @@ use serenity::model::channel::Message;
 #[description("Suggest an improvement to the maintainer")]
 #[aliases(suggest)]
 #[sub_commands(add_to_word_blocklist, add_to_user_blocklist)]
-#[min_args(1)]
+#[min_args(2)]
 async fn suggest(_: &Context, _: &Message) -> CommandResult {
     return Ok(());
 }
