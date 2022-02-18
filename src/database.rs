@@ -76,18 +76,6 @@ impl Database {
         }
 
         println!("Successfully initiated schema");
-        let _ = self.insert_in_word_blocklist("discordgift.ru.com".to_string());
-        let _ = self.insert_in_word_blocklist("discord-nitro.link".to_string());
-        let _ = self.insert_in_word_blocklist("freenitros.ru".to_string());
-        let _ = self.insert_in_word_blocklist("gifts-discord.xyz".to_string());
-        let _ = self.insert_in_word_blocklist("discorcl.link".to_string());
-        let _ = self.insert_in_word_blocklist("stearncommunity.link".to_string());
-        let _ = self.insert_in_word_blocklist("steamcomnumnity.com".to_string());
-        let _ = self.insert_in_word_blocklist("steamcomnumilty.com".to_string());
-        let _ = self.insert_in_word_blocklist("steamcomnumily.com".to_string());
-        let _ = self.insert_in_word_blocklist("steamcommutyniu.com".to_string());
-        let _ = self.insert_in_word_blocklist("steancomunnity.ru".to_string());
-        let _ = self.insert_in_word_blocklist("streancommunuty.ru".to_string());
     }
 
     pub fn insert_in_user_blocklist(&self, id: u64, reason: String) -> Result<bool> {
