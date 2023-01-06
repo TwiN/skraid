@@ -1,5 +1,5 @@
 # skraid
-[Docker Repository](https://hub.docker.com/r/twinproduction/skraid)
+[![Docker pulls](https://img.shields.io/docker/pulls/twinproduction/skraid.svg)](https://cloud.docker.com/repository/docker/twinproduction/skraid)
 
 ---
 
