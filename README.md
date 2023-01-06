@@ -1,7 +1,11 @@
 # skraid
 [Docker Repository](https://hub.docker.com/r/twinproduction/skraid)
 
-To invite the bot in the server: `https://discord.com/oauth2/authorize?client_id=<YOUR_BOT_CLIENT_ID>&scope=bot&permissions=11332`
+---
+
+This bot has been decommissioned in favor of Discord's new anti-raid system.
+
+---
 
 Skraid - a word play on scram, scam and raid - is an attempt to harness the power of large communities in order
 to put an end, or at least to reduce the blast radius of raids and common scams by ensuring that scammers and
